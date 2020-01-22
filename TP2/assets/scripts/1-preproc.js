@@ -22,7 +22,9 @@ function domainColor(color, data) {
  * @see https://www.w3schools.com/jsref/jsref_obj_date.asp
  */
 function parseDate(data) {
-  // TODO: Convert the dates from the CSV file to date objects
+  for(var i = 0; i< data.length; i++) {
+    data[i].Date = d3.timeParse("%d/%m/%Y")(data[i].Date)
+  }
 }
 
 /**
