@@ -12,7 +12,7 @@
  * @param data    CSV data
  */
 function domainColor(color, data) {
-  color.domain(data.columns.slice(1, -1));
+  color.domain(data.columns.slice(1, 0));
 }
 
 /**
