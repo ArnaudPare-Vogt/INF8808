@@ -12,8 +12,7 @@
  * @param data    CSV data
  */
 function domainColor(color, data) {
-  // TODO: Define the domain of variable "color" by associating a street name to a specific color
-
+  color.range(data.columns.slice(1, -1));
 }
 
 /**
