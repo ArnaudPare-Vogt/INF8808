@@ -1,4 +1,4 @@
-"use strict";
+  "use strict";
 
 /**
  * File to process CSV data. 
@@ -23,7 +23,7 @@ function domainColor(color, data) {
  */
 function parseDate(data) {
   for(var i = 0; i< data.length; i++) {
-    data[i].Date = d3.timeParse("%d/%m/%Y")(data[i].Date)
+    data[i].Date = d3.timeParse("%d/%m/%y")(data[i].Date)
   }
 }
 
@@ -49,8 +49,23 @@ function parseDate(data) {
  *                  ]
  */
 function createSources(color, data) {
-  // TODO: Return the object with the given format
+  var streetEntries = [];
+  var dataCols = data.columns;
 
+  for(var i=0; i< data.length; i++) {
+    for(var j=1; j<dataCols.length; j++) { // [0] = Date
+      if(!streetEntries[j-1]){
+        streetEntries[j-1] = {
+          name: dataCols[j],
+          values: []
+        };
+      }
+
+      streetEntries[j-1].values.push({date: data[i][dataCols[0]], count: data[i][dataCols[j]]});
+    }
+  }
+
+  return streetEntries;
 }
 
 /**
@@ -61,8 +76,8 @@ function createSources(color, data) {
  * @param data        Data from the CSV file
  */
 function domainX(xFocus, xContext, data) {
-  // TODO: specify the domains for the "xFocus" and "xContext" variables for the X axis
-
+  xFocus.domain(d3.extent(data, function(element) { return element.Date; }));
+  xContext.domain(d3.extent(data, function(element) { return element.Date; }));
 }
 
 /**
@@ -73,6 +88,11 @@ function domainX(xFocus, xContext, data) {
  * @param sources     Data sorted by street and date (see function "createSources").
  */
 function domainY(yFocus, yContext, sources) {
-  // TODO: specify the domains for the "xFocus" and "xContext" variables for the Y axis
-
+  var max = d3.max(sources, function(station) {
+    return d3.max(station.values, function(elem) {
+      return +elem.count;
+    });
+  })
+  yFocus.domain([0, max])
+  yContext.domain([0, max])
 }
