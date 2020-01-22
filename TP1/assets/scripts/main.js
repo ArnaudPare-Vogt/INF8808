@@ -2,15 +2,10 @@
   "use strict";
 
   // Sélection de l'élément SVG
-  var svg = d3.select("svg");
+  let svg = d3.select("svg");
 
-  /* TODO : trouver la fonction dans D3 permettant de trouver tous les cercles se trouvant dans l'élément
-            SVG puis stocker le résultat dans la variable "circles".
-
-            / find the function in D3 allowing you to get all the circles in the SVG element and store
-            the result in the variable "circles"
-  */
-  var circles ;
+  // Store the circles selection
+  let circles = svg.selectAll("circle");
 
   d3.select("#create-circles-button")
     .on("click", createCircles);
@@ -25,16 +20,10 @@
    * / Update the variable containing the circles as well as the display of the number of circles in the SVG element
    */
   function update() {
-    /* TODO
-       1) Mettre à jour la variable circles
-       2) Mettre à jour le texte indiquant le nombre de cercles présents dans l'élément SVG
-
-       / 
-
-       1) Update the circles variable
-       2) Update the text indicating the number of circles in the SVG element
-     */
-
+    // Update the circles variable
+    circles = svg.selectAll("circle");
+    // Update the text indicating the number of circles in the SVG element
+    d3.select("#circles-count").text(circles.size());
   }
 
   /**
@@ -60,7 +49,18 @@
           (use function generateRandomCircle())
        4) If this value is not corect, create an alert informing the user. 
     */
+    let new_circles_number = parseInt(d3.select("#quantity").property("value"));
 
+    if (isNaN(new_circles_number) || new_circles_number <= 0) {
+      alert("Le nombre de cercles n'est pas valide.");
+      return;
+    }
+
+    for (let i = 0; i < new_circles_number; ++i) {
+      generateRandomCircle()
+    }
+
+    update();
   }
 
   /**
@@ -80,7 +80,11 @@
      1) Show a confirmation box to confirm if the user wants to delete all the circles
      2) Delete all the circles if the users wants, if not do nothing. 
     */
-
+    if (confirm("Do you want to delete all circles?")) {
+      circles.remove();
+      update();
+    }
+    
   }
 
   /**
@@ -140,6 +144,7 @@
        You can use <br> to skip lines
 
      */
+    return position[0] + ", " + position[1] + "<br>Aire = " + (radius * radius * 3.14) + "<br>Couleur = " + color;
 
   }
 
@@ -160,10 +165,10 @@
          2) The position
          3) The color
        */
-
-      var radius ;
-      var position ;
-      var color ;
+      let circle = d3.select(this);
+      var radius = circle.attr("r");
+      var position = [circle.attr("cx"), circle.attr("cy")];
+      var color = circle.attr("fill");
       return textTip(radius, position, color);
     });
 
