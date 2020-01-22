@@ -20,11 +20,10 @@ function createLine(x, y) {
   // TODO: Return an SVG line (see "d3.line"). For the curve option, use a curveBasisOpen.
   return d3.line()
   .x(function(d) {
-    console.log(y(d.count) * 100)
     return x(d.date);
   })
   .y(function (d) {
-    return y(d.count) * 100;
+    return y(d.count);
   })
   .curve(d3.curveBasisOpen);
 }
@@ -42,6 +41,13 @@ function createFocusLineChart(g, sources, line, color) {
   // TODO: Draw the "focus" line chart in the "g" group
   // For each "path" you draw, specify this attribute : .attr("clip-path", "url(#clip)").
 
+  for(var i=0; i < sources.length; i++){
+    g.append("path")
+      .attr("d", line(sources[i].values))
+      .attr("clip-path", "url(#clip)")
+      .classed("line", true)
+      .style("stroke", color(sources[i].name));
+  }
 }
 
 /**
@@ -53,8 +59,10 @@ function createFocusLineChart(g, sources, line, color) {
  * @param color     Color scale with street names associated to colors
  */
 function createContextLineChart(g, sources, line, color) {
-  // TODO: Draw the "context" line chart in the "g" group
-  console.log(sources);
-  g.append("p").attr("d", line(sources[0].values));
-
+  for(var i=0; i < sources.length; i++){
+    g.append("path")
+      .attr("d", line(sources[i].values))
+      .classed("line", true)
+      .style("stroke", color(sources[i].name));
+  }
 }
