@@ -40,14 +40,15 @@ function createFocusLineChart(g, sources, line, color) {
 
   // TODO: Draw the "focus" line chart in the "g" group
   // For each "path" you draw, specify this attribute : .attr("clip-path", "url(#clip)").
+  // console.log(sources);
 
-  for(var i=0; i < sources.length; i++){
-    g.append("path")
-      .attr("d", line(sources[i].values))
-      .attr("clip-path", "url(#clip)")
-      .classed("line", true)
-      .style("stroke", color(sources[i].name));
-  }
+  let paths = g.selectAll("paths").data(sources);
+  paths.enter()
+    .append("path")
+    .attr("d", d => line(d.values))
+    .attr("clip-path", "url(#clip)")
+    .classed("line", true)
+    .style("stroke", d => color(d.name));
 }
 
 /**
