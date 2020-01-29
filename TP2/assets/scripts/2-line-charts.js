@@ -47,6 +47,7 @@ function createFocusLineChart(g, sources, line, color) {
     .append("path")
     .attr("d", d => line(d.values))
     .attr("clip-path", "url(#clip)")
+    .attr("data-legend", d => d.name)
     .classed("line", true)
     .style("stroke", d => color(d.name));
 }
