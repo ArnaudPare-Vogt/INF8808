@@ -28,7 +28,6 @@ function initializeData(data) {
  * @param x     X scale to use.
  */
 function domainX(x) {
-  // TODO: Set the domain for the variable "x" by specifying the minimum and maximum values: 35 and 90.
   x.domain([35, 90])
 }
 
@@ -38,7 +37,6 @@ function domainX(x) {
  * @param y     Y scale to use.
  */
 function domainY(y) {
-  // TODO: Set the domain for the variable "y" by specifying the minimum and maximum values: 0 USD and 140000 USD.
   y.domain([0, 140000])
 }
 
@@ -50,7 +48,7 @@ function domainY(y) {
  */
 function domainColor(color, data) {
   // TODO: Precise the scale domain for the color. Make sure that each world region has a distinct value and no color is reused.
-  color.domain(data.map(d => d.name))
+  color.domain(data.map(d => d.zone))
 }
 
 /**
