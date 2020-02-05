@@ -13,7 +13,14 @@
  */
 function initializeData(data) {
   // TODO: Convert the properties "income", "lifeExpectancy" and "population" to the "number" type for each entry.
+// console.log(data)
+  for (let i = 0; i < data.length; i++) {
+    data[i].income=Number(data[i].income)
+    data[i].lifeExpectancy=Number(data[i].lifeExpectancy)
+    data[i].population=Number(data[i].population)
+  }
 }
+
 
 /**
  * Set the domain scale for the X axis of the bubble chart.
