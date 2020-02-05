@@ -21,7 +21,6 @@ function initializeData(data) {
   }
 }
 
-
 /**
  * Set the domain scale for the X axis of the bubble chart.
  *
@@ -58,6 +57,12 @@ function domainColor(color, data) {
  * @param data    Data that comes from a CSV file
  */
 function domainRadius(r, data) {
-  // TODO: Set the domain scale of the variable "r" by specifying the value extremas of the population (minimum and maximum).
-
+  // TODO: Set the domain scale of the variable "r" by specifying the 
+  //       value extremas of the population (minimum and maximum).
+  var rScale = d3.scaleLinear()
+  .domain([0, d3.max(data, function(d) { return d[1]; })])
+  .range([2, 5])
+  .attr("r", function(d) {
+    return rScale(d[1]);
+    });
 }
