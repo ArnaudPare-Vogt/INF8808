@@ -46,8 +46,7 @@ function legend(svg, sources, color) {
  * @param color     The 10-color scale
  */
 function displayLine(element, color, name) {
-  // TODO: Complete the code to show or hide a line depending on the selected item
   let isVisible = d3.select(element).style("fill") != "white";
   d3.select(element).style("fill", isVisible ? "white" : color);
-  d3.select('[data-legend="' + name + '"]').style("visibility", isVisible ? "hidden" : "visible");
+  d3.selectAll('[data-legend="' + name + '"]').style("visibility", isVisible ? "hidden" : "visible");
 }

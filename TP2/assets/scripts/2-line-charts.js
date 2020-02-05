@@ -42,7 +42,7 @@ function createFocusLineChart(g, sources, line, color) {
   // For each "path" you draw, specify this attribute : .attr("clip-path", "url(#clip)").
   // console.log(sources);
 
-  let paths = g.selectAll("paths").data(sources);
+  let paths = g.selectAll("path").data(sources);
   paths.enter()
     .append("path")
     .attr("d", d => line(d.values))
@@ -61,10 +61,11 @@ function createFocusLineChart(g, sources, line, color) {
  * @param color     Color scale with street names associated to colors
  */
 function createContextLineChart(g, sources, line, color) {
-  for(var i=0; i < sources.length; i++){
-    g.append("path")
-      .attr("d", line(sources[i].values))
-      .classed("line", true)
-      .style("stroke", color(sources[i].name));
-  }
+  let paths = g.selectAll("path").data(sources);
+  paths.enter()
+    .append("path")
+    .attr("d", d => line(d.values))
+    .attr("data-legend", d => d.name)
+    .classed("line", true)
+    .style("stroke", d => color(d.name));
 }
