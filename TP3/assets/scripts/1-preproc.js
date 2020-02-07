@@ -59,10 +59,11 @@ function domainColor(color, data) {
 function domainRadius(r, data) {
   // TODO: Set the domain scale of the variable "r" by specifying the 
   //       value extremas of the population (minimum and maximum).
-  var rScale = d3.scaleLinear()
-  .domain([0, d3.max(data, function(d) { return d[1]; })])
-  .range([2, 5])
-  .attr("r", function(d) {
-    return rScale(d[1]);
-    });
+  r.domain(d3.extent(data.map(d => d.population)))
+  // var rScale = d3.scaleLinear()
+  // .domain([0, d3.max(data, function(d) { return d[1]; })])
+  // .range([2, 5])
+  // .attr("r", function(d) {
+  //   return rScale(d[1]);
+  //   });
 }

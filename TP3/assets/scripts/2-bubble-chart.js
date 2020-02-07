@@ -60,6 +60,8 @@ function createBubbleChart(g, data, x, y, r, color, tip) {
     .append("circle")
     .attr("cx", (d) => x(d.lifeExpectancy))
     .attr("cy", (d) => y(d.income))
-    .attr("r", 10) // .attr("r", (d) => r(d.population))
-    .attr("fill", (d) => color(d.zone));
+    .attr("r", (d) => r(d.population))
+    .attr("fill", (d) => color(d.zone))
+    .on("mouseover", tip.show)
+    .on("mouseleave", tip.hide);
 }
