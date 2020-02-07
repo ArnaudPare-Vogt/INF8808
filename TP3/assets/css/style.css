@@ -146,3 +146,16 @@ circle.hide {
 .axis .tick text {
   font-size: 10pt;
 }
+
+.axis .label {
+  font-size: 14px;
+}
+
+.axis.x .label {
+  dominant-baseline: ideographic;
+  text-anchor: end;
+}
+
+.axis.y .label {
+  dominant-baseline: hanging;
+}

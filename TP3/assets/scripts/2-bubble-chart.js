@@ -15,8 +15,29 @@
  * @param width   The graphic's width.
  */
 function createAxes(g, xAxis, yAxis, height, width) {
-  // TODO: Draw the X and Y axes.
+  g.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .classed("x", true)
+    .classed("axis", true)
+    .call(xAxis)
+    .append("text")
+    .attr("x", width)
+    .attr("y", 0)
+    .attr("fill", "currentColor")
+    .classed("label", true)
+    .text("Life expectancy (years)");
 
+  g.append("g")
+    .classed("y", true)
+    .classed("axis", true)
+    .call(yAxis)
+    .append("text")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("fill", "currentColor")
+    .attr("transform", "rotate(-90)")
+    .classed("label", true)
+    .text("Income (USD)");
 }
 
 /**
