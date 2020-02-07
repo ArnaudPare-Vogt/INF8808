@@ -54,5 +54,12 @@ function createAxes(g, xAxis, yAxis, height, width) {
 function createBubbleChart(g, data, x, y, r, color, tip) {
   // TODO: Draw the graph's circles by using the specified scales.
   //       Make sure you add the tooltip when a circle is hovered.
-
+  g.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => x(d.lifeExpectancy))
+    .attr("cy", (d) => y(d.income))
+    .attr("r", 10) // .attr("r", (d) => r(d.population))
+    .attr("fill", (d) => color(d.zone));
 }
