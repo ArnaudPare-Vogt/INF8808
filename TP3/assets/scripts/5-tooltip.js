@@ -1,6 +1,6 @@
 "use strict";
 
-/**
+/** Test
  * File allowing to define the text to be shown in the tooltip.
  */
 
