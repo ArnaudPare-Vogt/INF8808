@@ -1,5 +1,5 @@
 "use strict";
-// test 2
+// test
 /**
  * File used to draw the bubble chart.
  */
