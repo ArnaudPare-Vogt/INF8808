@@ -18,7 +18,8 @@ function domainColor(color, data) {
   // console.table(data)
   var ordinalScale = d3.scaleOrdinal()
 	.domain(data)
-	.range(color);
+  .range(color);
+  console ordinalScale
 }
 
 /**
