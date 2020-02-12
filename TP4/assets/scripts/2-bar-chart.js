@@ -14,7 +14,11 @@
  */
 function createAxes(g, xAxis, yAxis, height) {
   // TODO: Draw the X and Y axis of the graphic. Make sure you put a title for the Y axis.
-
+  g.append("g")
+    .classed("x", true)
+    .classed("axis", true)
+    .attr("transform", "translate(0, " + height + ")")
+    .call(xAxis);
 }
 
 /**
