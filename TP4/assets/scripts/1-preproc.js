@@ -16,7 +16,9 @@ function domainColor(color, data) {
   // TODO: Specify the color scale for each BIXI station 
   //       by assigning each station a distinct color.
   // console.table(data)
-  var colormap = d3.schemeCategory10([d3.table(data).]);
+  var ordinalScale = d3.scaleOrdinal()
+	.domain(data)
+	.range(color);
 }
 
 /**
