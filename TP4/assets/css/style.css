@@ -109,6 +109,11 @@ rect:hover {
   shape-rendering: crispEdges;
 }
 
+.x.axis .tick text {
+  transform: rotate(30deg);
+  text-anchor: start;
+}
+
 .group text {
   fill: #fff;
 }
