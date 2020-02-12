@@ -107,7 +107,7 @@
         if (d3.event.key === "Enter") {
           validateInput();
         } else {
-          reset(bubbleChartGroup);
+          reset(bubbleChartGroup, color);
           searchBarInput.classed("error", false);
         }
       });

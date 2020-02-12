@@ -1,5 +1,5 @@
 "use strict";
-
+// test
 /**
  * File used to draw the bubble chart.
  */
@@ -62,6 +62,7 @@ function createBubbleChart(g, data, x, y, r, color, tip) {
     .attr("cy", (d) => y(d.income))
     .attr("r", (d) => r(d.population))
     .attr("fill", (d) => color(d.zone))
+    .attr("id", (d) => btoa(d.name))
     .on("mouseover", tip.show)
     .on("mouseleave", tip.hide);
 }
