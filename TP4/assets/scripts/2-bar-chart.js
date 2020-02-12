@@ -22,7 +22,15 @@ function createAxes(g, xAxis, yAxis, height) {
   g.append("g")
     .classed("y", true)
     .classed("axis", true)
-    .call(yAxis);
+    .call(yAxis)
+    .append("text")
+      .text("Number of trips")
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "ideographic")
+      .attr("font-size", 14)
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("fill", "currentColor");
 }
 
 /**
