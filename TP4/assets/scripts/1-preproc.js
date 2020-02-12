@@ -13,8 +13,10 @@
  * @param data    Data from JSON file.
  */
 function domainColor(color, data) {
-  // TODO: Specify the color scale for each BIXI station by assigning each station a distinct color.
-
+  // TODO: Specify the color scale for each BIXI station 
+  //       by assigning each station a distinct color.
+  // console.table(data)
+  var colormap = d3.schemeCategory10([d3.table(data).]);
 }
 
 /**
