@@ -12,20 +12,22 @@
  * @param countrySelected     Name of the selected country.
  * @param g                   The SVG group in which the bubble chart will be drawn.
  */
+var selectedElem;
 function search(countrySelected, g) {
-  /* TODO:
-       - Highlight the selected country by coloring its circle in black and by setting its opacity to 100%.
-       - Set the opacity to 15% for the circles associated to the other countries (different than "countrySelected").
-   */
-
+  g.selectAll("circle").attr("opacity", 0.15)
+  g.select("#" + CSS.escape(btoa(countrySelected)))
+  .attr("fill", "#000000")
+  .attr("opacity", 1.0)
 }
 
 /**
  * Resets the display to its default state.
  *
  * @param g   The SVG group in which the bubble chart will be drawn.
+ * @param color The function to get the color for a specified zone
  */
-function reset(g) {
-  // TODO: Reset the bubble chart display to its default state.
-
+function reset(g, color) {
+  g.selectAll("circle")
+  .attr("opacity", 1.0)
+  .attr("fill", (d) => color(d.zone))
 }
