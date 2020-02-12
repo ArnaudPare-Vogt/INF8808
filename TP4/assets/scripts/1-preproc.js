@@ -38,7 +38,7 @@ function domainX(x, data) {
  */
 function domainY(y, currentData) {
   // TODO: Specifies the domain for the "y" axis by taking the minimum and maximum values as the number of trips to a BIXI station.
-  y.domain(d3.extent(currentData, d => d.count))
+  y.domain(d3.extent(currentData.destinations, d => d.count))
 }
 
 /**

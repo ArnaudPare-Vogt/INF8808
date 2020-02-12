@@ -19,6 +19,10 @@ function createAxes(g, xAxis, yAxis, height) {
     .classed("axis", true)
     .attr("transform", "translate(0, " + height + ")")
     .call(xAxis);
+  g.append("g")
+    .classed("y", true)
+    .classed("axis", true)
+    .call(yAxis);
 }
 
 /**
