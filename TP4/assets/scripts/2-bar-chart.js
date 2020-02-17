@@ -47,7 +47,16 @@ function createAxes(g, xAxis, yAxis, height) {
 function createBarChart(g, currentData, x, y, color, tip, height) {
   // TODO: Draw the bars for the bar charts using the specified scales.
   //       Make sure you show a tooltip when a bar in the bar chart is hovered.
+var bars=g.selectall(".bar")
+    .data("currentData")
+    .append("g")
+    .attr("class", "bar")
 
+  bars.append(".rect")
+      .attr("x")
+      .attr("y")
+      .attr("width")
+      .attr("height")
 }
 
 /**
@@ -64,7 +73,10 @@ function transition(g, newData, y, yAxis, height) {
    - Complete a transition to update the Y axis and the height of the bar chart, taking into account the new data.
    - The transition has to complete in 1 second.
    */
-
+// var bars=g.selectall(.rect)
+//     .transition()
+//     .newData(newData)
+//     .attr(y)
 }
 
 /**
