@@ -19,7 +19,7 @@ function domainColor(color, data) {
   var ordinalScale = d3.scaleOrdinal()
 	.domain(data)
   .range(color);
-  console.ordinalScale
+  // console.ordinalScale
 }
 
 /**
