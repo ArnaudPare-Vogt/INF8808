@@ -48,6 +48,14 @@ function createChords(g, data, layout, path, color, total, formatPercent) {
      - Create the diagram's chords with an 80% opacity.
      - Show a "title" element when a chord is hovered by the user's mouse.
   */
+  g.selectAll("path")
+    .data(layout)
+    .enter()
+    .append("path")
+      .attr("stroke", "black")
+      .attr("fill", "rgba(255,0,0)")
+      .attr("opacity", "80%")
+      .attr("d", path);
 
 }
 
