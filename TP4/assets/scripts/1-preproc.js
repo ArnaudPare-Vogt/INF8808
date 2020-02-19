@@ -51,8 +51,10 @@ function domainY(y, currentData) {
  * @return {Array}    A 10x10 matrix indicating the number of trips from a station to another.
  */
 function getMatrix(data) {
-  // TODO: Calculate the adjacency matrix to create the chord diagram.
-  return [];
+  // M[i][j] : trips from station i to station j
+  return data.map((d) => {
+    return d.destinations.map(destination => destination.count);
+  });
 }
 
 /**
@@ -62,5 +64,6 @@ function getMatrix(data) {
  */
 function getTotal(data) {
   // TODO: Calculate the total number of trips done on August 2015.
-  return 0;
+  let adder = (val, accumulator) => val + accumulator;
+  return getMatrix(data).map(r => r.reduce(adder)).reduce(adder);
 }
