@@ -16,12 +16,11 @@ function domainColor(color, data) {
   // TODO: Specify the color scale for each BIXI station 
   //       by assigning each station a distinct color.
   // console.table(data)
-  var ordinalScale = d3.scaleOrdinal()
+  var ordinalScale = color
 	.domain(data)
-  .range(color);
-  // console.ordinalScale
+  console.log(color("De la Commune / Place Jacques-Cartier"));
+  console.log(color("De la Commune / Saint-Sulpice"));
 }
-
 /**
  * Specifies the scale for the X axis of the bar chart.
  *
