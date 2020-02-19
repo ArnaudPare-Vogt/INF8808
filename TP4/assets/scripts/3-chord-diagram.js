@@ -25,6 +25,14 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
      - Tronquer les noms des stations de BIXI qui sont trop longs (Pontiac et Métro Mont-Royal).
      - Afficher un élément "title" lorsqu'un groupe est survolé par la souris.
   */
+  g.selectAll("path.group")
+    .data(layout.groups)
+    .enter()
+    .append("path")
+      .classed("group", true)
+      .attr("fill", "black")
+      .attr("stroke", "green")
+      .attr("d", arc);
 
 }
 
@@ -48,10 +56,11 @@ function createChords(g, data, layout, path, color, total, formatPercent) {
      - Create the diagram's chords with an 80% opacity.
      - Show a "title" element when a chord is hovered by the user's mouse.
   */
-  g.selectAll("path")
+  g.selectAll("path.chord")
     .data(layout)
     .enter()
     .append("path")
+      .classed("chord", true)
       .attr("stroke", "black")
       .attr("fill", "rgba(255,0,0)")
       .attr("opacity", "80%")
