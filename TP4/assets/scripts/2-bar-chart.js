@@ -24,13 +24,13 @@ function createAxes(g, xAxis, yAxis, height) {
     .classed("axis", true)
     .call(yAxis)
     .append("text")
-      .text("Number of trips")
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "ideographic")
-      .attr("font-size", 14)
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("fill", "currentColor");
+    .text("Number of trips")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "ideographic")
+    .attr("font-size", 14)
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("fill", "currentColor");
 }
 
 /**
@@ -47,16 +47,17 @@ function createAxes(g, xAxis, yAxis, height) {
 function createBarChart(g, currentData, x, y, color, tip, height) {
   // TODO: Draw the bars for the bar charts using the specified scales.
   //       Make sure you show a tooltip when a bar in the bar chart is hovered.
-var bars=g.selectall(".bar")
-    .data("currentData")
-    .append("g")
-    .attr("class", "bar")
-
-  bars.append(".rect")
-      .attr("x")
-      .attr("y")
-      .attr("width")
-      .attr("height")
+  g.append('g')
+    .selectAll('bar')
+    .data(currentData.destinations)
+    .enter()
+    .append('rect')
+    .classed('bar', true)
+    .attr('fill', (s) => color(s.name))
+    .attr('x', (s) => x(s.name))
+    .attr('y', (s) => y(s.count))
+    .attr('height', (s) => height - y(s.count))
+    .attr('width', x.bandwidth())
 }
 
 /**
