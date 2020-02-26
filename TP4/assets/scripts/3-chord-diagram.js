@@ -34,8 +34,7 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
     .classed("group", true);
 
   group.append("path")
-    .attr("fill", "black")
-    .attr("stroke", "black")
+    .attr("fill", (d, i) => color(data[i].name))
     .attr("d", arc)
     .each(function(d,i) {
       // Get the outer arc only
@@ -59,7 +58,7 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
 
   group.append("text")
     .attr("dy", (+arc.outerRadius()() - +arc.innerRadius()()) / 2 + 5)
-    .attr("x", 10)
+    .attr("x", 5)
     .append("textPath")
     .attr("href", d => "#" + id_generator(d))
     .text(d => data[d.index].name);
