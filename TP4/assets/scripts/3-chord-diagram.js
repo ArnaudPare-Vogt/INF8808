@@ -99,14 +99,31 @@ function createChords(g, data, layout, path, color, total, formatPercent) {
       return color(data[d.target.index].name);
     }
   };
+
+  // Computes the tooltip for a specific chord
+  let computeTooltip = (d) => {
+    return data[d.source.index].name
+      + " \u2192 " 
+      + data[d.target.index].name 
+      + ": " 
+      + formatPercent(data[d.source.index].destinations[d.target.index].count / total)
+      + "\n"
+      + data[d.target.index].name
+      + " \u2192 " 
+      + data[d.source.index].name 
+      + ": " 
+      + formatPercent(data[d.target.index].destinations[d.source.index].count / total);
+  };
+
   g.selectAll("path.chord")
     .data(layout)
     .enter()
     .append("path")
       .classed("chord", true)
-      .attr("fill", (d) => computeColor(d))
-      .attr("opacity", "80%")
-      .attr("d", path);
+      .attr("fill", computeColor)
+      .attr("d", path)
+      .append("title")
+      .text(computeTooltip);
 
 }
 
