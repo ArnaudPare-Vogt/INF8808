@@ -50,7 +50,7 @@ function createBarChart(g, currentData, x, y, color, tip, height) {
   //       Make sure you show a tooltip when a bar in the bar chart is hovered.
   
   g.selectAll("bar")
-  .data(currentData.destination)
+  .data(currentData.destinations)
   .enter().append("rect")
   .style("fill", "color")
   .attr("x", d => x(d.name))
