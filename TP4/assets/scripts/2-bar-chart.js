@@ -74,10 +74,24 @@ function transition(g, newData, y, yAxis, height) {
    - Complete a transition to update the Y axis and the height of the bar chart, taking into account the new data.
    - The transition has to complete in 1 second.
    */
-// var bars=g.selectall(.rect)
-//     .transition()
-//     .newData(newData)
-//     .attr(y)
+
+  var bars = g.selectAll('.bar')
+    .data(newData.destinations)
+
+  // If new data gets added
+  bars.enter().append('rect')
+    .classed('bar', true)
+    .attr('fill', (s) => color(s.name));
+
+  // If bars get deleted, remove them smoothly
+  bars.exit().transition().duration(1000).attr('height', 0).remove();
+
+  // Update data
+  bars
+    .transition()
+    .duration(1000)
+    .attr('y', (s) => y(s.count))
+    .attr('height', (s) => height - y(s.count))
 }
 
 /**
