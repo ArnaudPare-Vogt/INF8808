@@ -43,10 +43,6 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
       //The [1] gives back the expression between the () (thus not the L as well)
       //which is exactly the arc statement
       var newArc = firstArcSection.exec( d3.select(this).attr("d") )[1];
-      //Replace all the comma's so that IE can handle it -_-
-      //The g after the / is a modifier that "find all matches rather than
-      //stopping after the first match"
-      //newArc = newArc.replace(/,/g , " ");
 
       //Create a new invisible arc that the text can flow along
       d3.select(this)
@@ -63,7 +59,13 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
     .attr("href", d => "#" + id_generator(d))
     .text(d => data[d.index].name);
 
+  let calculateTotalTripPercentage = (d) => {
+    let trips = d.destinations.reduce((currentTotal, val) => currentTotal + val.count, 0 );
+    return trips / total;
+  } 
 
+  group.append("title")
+    .text((d, i) => data[i].name + ": " + formatPercent(calculateTotalTripPercentage(data[i])) + " of trips");
 }
 
 /**
