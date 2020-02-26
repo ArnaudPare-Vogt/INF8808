@@ -53,9 +53,9 @@ function createBarChart(g, currentData, x, y, color, tip, height) {
   .data(currentData)
   .enter().append("rect")
   .style("fill", "color")
-  .attr("x", function(d) { return x(d.name); })
+  .attr("x", d => x(d.name))
   .attr("width")
-  .attr("y", function(d) { return y(d.count); })
+  .attr("y", d => y(d.count))
   .attr("height", function(d) { return height - y(d.count); });
 
 };
