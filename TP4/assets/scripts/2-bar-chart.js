@@ -13,7 +13,8 @@
  * @param height  Height of the graphic.
  */
 function createAxes(g, xAxis, yAxis, height) {
-  // TODO: Draw the X and Y axis of the graphic. Make sure you put a title for the Y axis.
+  // TODO: Draw the X and Y axis of the graphic. 
+  //       Make sure you put a title for the Y axis.
   g.append("g")
     .classed("x", true)
     .classed("axis", true)
@@ -47,17 +48,17 @@ function createAxes(g, xAxis, yAxis, height) {
 function createBarChart(g, currentData, x, y, color, tip, height) {
   // TODO: Draw the bars for the bar charts using the specified scales.
   //       Make sure you show a tooltip when a bar in the bar chart is hovered.
-var bars=g.selectall(".bar")
-    .data("currentData")
-    .append("g")
-    .attr("class", "bar")
+  
+  g.selectAll("bar")
+  .data(currentData)
+  .enter().append("rect")
+  .style("fill", "color")
+  .attr("x", function(d) { return x(d.name); })
+  .attr("width")
+  .attr("y", function(d) { return y(d.count); })
+  .attr("height", function(d) { return height - y(d.count); });
 
-  bars.append(".rect")
-      .attr("x")
-      .attr("y")
-      .attr("width")
-      .attr("height")
-}
+};
 
 /**
  * Completes a transition from the currently used data to the new data to be shown.
