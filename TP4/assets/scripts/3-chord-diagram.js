@@ -31,7 +31,8 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
     .data(layout.groups)
     .enter()
     .append("g")
-    .classed("group", true);
+    .classed("group", true)
+    .attr("id", (d, i) => "chord-group" + i);
 
   group.append("path")
     .attr("fill", (d, i) => color(data[i].name))
@@ -119,6 +120,7 @@ function createChords(g, data, layout, path, color, total, formatPercent) {
     .data(layout)
     .enter()
     .append("path")
+      .each(function(d) { this.classList.add("chord-group" + d.target.index); this.classList.add("chord-group" + d.source.index); })
       .classed("chord", true)
       .attr("fill", computeColor)
       .attr("d", path)
@@ -138,5 +140,11 @@ function initializeGroupsHovered(g) {
        The other chords have to drawn with an 10% opacity.
      - Reset the default style for the diagram when the user mouse's leaves the diagram's group.
   */
-
+  g.selectAll("g.group")
+    .on("mouseover", function() {
+      g.selectAll(".chord")
+        .classed("fade", true);
+      g.selectAll(".chord." + this.id)
+        .classed("fade", false);
+    });
 }
