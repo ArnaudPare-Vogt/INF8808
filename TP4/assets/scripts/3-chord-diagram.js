@@ -52,13 +52,24 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
         .attr("d", newArc)
         .style("fill", "none");
     });
+  
+  // Cuts the text manually so that the displayed text fits in the area to render
+  let cutText = (text) => {
+    if (text == "Pontiac / Gilford") {
+      return "Pontiac"
+    }
+    if (text == "Métro Mont-Royal (Rivard/Mont-Royal)") {
+      return "Métro Mont-Royal";
+    }
+    return text;
+  }
 
   group.append("text")
     .attr("dy", (+arc.outerRadius()() - +arc.innerRadius()()) / 2 + 5)
     .attr("x", 5)
     .append("textPath")
     .attr("href", d => "#" + id_generator(d))
-    .text(d => data[d.index].name);
+    .text(d => cutText(data[d.index].name));
 
   let calculateTotalTripPercentage = (d) => {
     let trips = d.destinations.reduce((currentTotal, val) => currentTotal + val.count, 0 );
