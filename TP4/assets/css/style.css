@@ -116,6 +116,7 @@ rect:hover {
 
 .group text {
   fill: #fff;
+  font-size: 10pt;
 }
 
 #circle circle {

@@ -25,14 +25,45 @@ function createGroups(g, data, layout, arc, color, total, formatPercent) {
      - Tronquer les noms des stations de BIXI qui sont trop longs (Pontiac et Métro Mont-Royal).
      - Afficher un élément "title" lorsqu'un groupe est survolé par la souris.
   */
-  g.selectAll("path.group")
+  let id_generator = d => "group_no" + d.index;
+
+  let group = g.selectAll("g.group")
     .data(layout.groups)
     .enter()
-    .append("path")
-      .classed("group", true)
-      .attr("fill", "black")
-      .attr("stroke", "green")
-      .attr("d", arc);
+    .append("g")
+    .classed("group", true);
+
+  group.append("path")
+    .attr("fill", "black")
+    .attr("stroke", "black")
+    .attr("d", arc)
+    .each(function(d,i) {
+      // Get the outer arc only
+      var firstArcSection = /(^.+?)L/;
+
+      //The [1] gives back the expression between the () (thus not the L as well)
+      //which is exactly the arc statement
+      var newArc = firstArcSection.exec( d3.select(this).attr("d") )[1];
+      //Replace all the comma's so that IE can handle it -_-
+      //The g after the / is a modifier that "find all matches rather than
+      //stopping after the first match"
+      //newArc = newArc.replace(/,/g , " ");
+
+      //Create a new invisible arc that the text can flow along
+      d3.select(this)
+        .append("path")
+        .attr("id", id_generator)
+        .attr("d", newArc)
+        .style("fill", "none");
+    });
+
+  group.append("text")
+    .attr("dy", (+arc.outerRadius()() - +arc.innerRadius()()) / 2 + 5)
+    .attr("x", 10)
+    .append("textPath")
+    .attr("href", d => "#" + id_generator(d))
+    .text(d => data[d.index].name);
+
 
 }
 
