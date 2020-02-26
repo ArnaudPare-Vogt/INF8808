@@ -88,13 +88,23 @@ function createChords(g, data, layout, path, color, total, formatPercent) {
      - Create the diagram's chords with an 80% opacity.
      - Show a "title" element when a chord is hovered by the user's mouse.
   */
+  // Computes the color of the station with the most depertures
+  let computeColor = (d) => {
+    let sourceDepartures = data[d.source.index].destinations[d.target.index].count;
+    let targetDepartures = data[d.target.index].destinations[d.source.index].count;
+    if (sourceDepartures > targetDepartures) {
+      return color(data[d.source.index].name);
+    }
+    else {
+      return color(data[d.target.index].name);
+    }
+  };
   g.selectAll("path.chord")
     .data(layout)
     .enter()
     .append("path")
       .classed("chord", true)
-      .attr("stroke", "black")
-      .attr("fill", "rgba(255,0,0)")
+      .attr("fill", (d) => computeColor(d))
       .attr("opacity", "80%")
       .attr("d", path);
 
