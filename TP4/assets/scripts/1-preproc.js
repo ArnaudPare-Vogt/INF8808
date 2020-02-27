@@ -13,13 +13,8 @@
  * @param data    Data from JSON file.
  */
 function domainColor(color, data) {
-  // TODO: Specify the color scale for each BIXI station 
-  //       by assigning each station a distinct color.
-  // console.table(data)
-  var ordinalScale = color
-	.domain(data)
-  console.log(color("De la Commune / Place Jacques-Cartier"));
-  console.log(color("De la Commune / Saint-Sulpice"));
+  color
+    .domain(data)
 }
 /**
  * Specifies the scale for the X axis of the bar chart.
@@ -62,7 +57,6 @@ function getMatrix(data) {
  * @param data    Data from JSON file.
  */
 function getTotal(data) {
-  // TODO: Calculate the total number of trips done on August 2015.
   let adder = (val, accumulator) => val + accumulator;
   return getMatrix(data).map(r => r.reduce(adder)).reduce(adder);
 }
