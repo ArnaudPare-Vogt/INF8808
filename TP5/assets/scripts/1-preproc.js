@@ -12,8 +12,9 @@
  * @param parties   The information to use for the different parties. 
  */
 function colorScale(color, parties) {
-  // TODO: Specify the domain of the scale in y associating each of the parties passed as parameter
-  //       Also, specify the range of colors by specifying the color used for each party. 
+  color
+    .domain(parties.map(party => party.name))
+    .range(parties.map(party => party.color));
 }
 
 /**
@@ -21,7 +22,10 @@ function colorScale(color, parties) {
  * @param data      Data from the CSV. 
  */
 function convertNumbers(data) {
-  // TODO: Convert the properties "id" and "votes" to type "number" for each of the elements in the list
+  data.map(row => {
+    row.id = parseInt(row.id);
+    row.votes = parseInt(row.votes);
+  });
 }
 
 /**
@@ -53,5 +57,28 @@ function convertNumbers(data) {
 function createSources(data) {
   // TODO: Return the object with the format described above. Make sure to sort the table "results" for each entry 
   // in decreasing order of the votes (the winning candidate must be the first element of the table)
+  let get_result_from_row = (row) => {
+    return {
+      candidate: row.candidate,
+      votes: row.votes,
+      percent: row.percent,
+      party: row.party
+    };
+  };
 
+  return data.reduce((result, row) => {
+    let element = result.find(result_row => result_row.id === row.id);
+    if (element) {
+      element.results.push(get_result_from_row(row));
+      element.results.sort((a, b) => a.votes < b.votes);
+    }
+    else {
+      result.push({
+        id: row.id,
+        name: row.name,
+        results: [get_result_from_row(row)]
+      });
+    }
+    return result;
+  }, []);
 }
