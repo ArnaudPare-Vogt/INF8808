@@ -72,10 +72,10 @@
       /***** Map initialization *****/
       initTileLayer(L, map);
       var mapSvg = initSvgLayer(map);
-	  var g = undefined;
-	  if (mapSvg) {
-		g = mapSvg.select("g");
-	  }
+      var g = undefined;
+      if (mapSvg) {
+      g = mapSvg.select("g");
+      }
       var path = createPath();
 
       createDistricts(g, path, canada, sources, color, showPanel);
