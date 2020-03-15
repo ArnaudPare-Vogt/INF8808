@@ -14,7 +14,8 @@
 function colorScale(color, parties) {
   color
     .domain(parties.map(party => party.name))
-    .range(parties.map(party => party.color));
+    .range(parties.map(party => party.color))
+    .unknown("grey");
 }
 
 /**
@@ -62,7 +63,7 @@ function createSources(data) {
       candidate: row.candidate,
       votes: row.votes,
       percent: row.percent,
-      party: row.party
+      party: row.party === "Indépendant" ? row.party + "(" + row.candidate + ")" : row.party // Intependant parties are all different
     };
   };
 

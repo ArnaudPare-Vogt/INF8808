@@ -18,6 +18,8 @@ function updateDomains(districtSource, x, y) {
        - The domain in Y correspongs to the name of the political parties associated to the winning candidates. Make sure the parties
          are sorted in decreasing order of votes obtained (i.e. the winner's party should be first)
    */
+  y.domain(districtSource.results.map(r => r.party));
+  x.domain([0, d3.max(districtSource.results, r => r.votes)]);
 }
 
 /**
@@ -33,7 +35,12 @@ function updatePanelInfo(panel, districtSource, formatNumber) {
        - The name of the winning candidate and his or her party;
        - The total number of votes for all candidates (use the function "formatNumber" to format the number).
    */
-
+  function sum(array, accessor) {
+    return array.reduce((t, r) => t + accessor(r), 0)
+  }
+  panel.select("#district-name").text(districtSource.name + " [" + districtSource.id + "]");
+  panel.select("#elected-candidate").text(districtSource.results[0].candidate + " (" + districtSource.results[0].party + ")");
+  panel.select("#votes-count").text(formatNumber(sum(districtSource.results, r => r.votes)) + " votes");
 }
 
 /**
@@ -61,7 +68,46 @@ function updatePanelBarChart(gBars, gAxis, districtSource, x, y, yAxis, color, p
         with the list "parties" passed as a parameter. Note that if the party is not in the list "parties", you must 
         write "Autre" as the shortened format. 
    */
+  function setBarParams(selection) {
+    return selection
+    .attr("y", (d) => y(d.party))
+    .attr("height", y.bandwidth())
+    .attr("x", 0)
+    .attr("width", (d) => x(d.votes))
+    .attr("fill", (d) => color(d.party));
+  }
+  function setTextParams(selection) {
+    return selection
+    .attr("y", (d) => y(d.party) + y.bandwidth() / 2)
+    .attr("x", (d) => x(d.votes))
+    .text((d) => d.percent);
+  }
+  function getPartyAbbrev(name) {
+    if (name.startsWith("Indépendant")) {
+      name = "Indépendant";
+    }
+    return (parties.find((r) => r.name == name) || {abbreviation: "Autre"}).abbreviation;
+  }
+  
+  gAxis.call(yAxis);
+  gAxis.selectAll("text")
+    .text(getPartyAbbrev);
 
+  let barsData = gBars.selectAll("g.bar")
+    .data(districtSource.results);
+  let barsEnter = barsData.enter()
+    .append("g")
+    .classed("bar", true);
+  
+  barsEnter.append("rect").call(setBarParams);
+  barsEnter.append("text")
+    .classed("label", true)
+    .call(setTextParams);
+
+  barsData.select("rect").call(setBarParams);
+  barsData.select("text").call(setTextParams);
+  
+  barsData.exit().remove();
 }
 
 /**
@@ -71,5 +117,5 @@ function updatePanelBarChart(gBars, gAxis, districtSource, x, y, yAxis, color, p
  */
 function reset(g) {
   // TODO: Reinitialize the map's display by removing the "selected" class from all elements
-
+  g.selectAll(".selected").classed("selected", false);
 }
