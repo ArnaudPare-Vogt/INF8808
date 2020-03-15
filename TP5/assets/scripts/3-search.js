@@ -26,5 +26,11 @@ function search(map, g, districtId, bound, showPanel) {
       Select the searched area by applying the class "selected" to it. Also, display the information panel for this
       district using the function "showPanel"
    */
-
+   map.fitBounds(bound, {
+      maxZoom: 8,
+      animate: true,
+      pan: { duration: 1, easeLinearity: 0.5 },
+      zoom: { animate: true }
+   });
+   selectDistrict(g, districtId, showPanel);
 }

@@ -80,12 +80,17 @@ function createDistricts(g, path, canada, sources, color, showPanel) {
     .attr("stroke", "black")
     .attr("stroke-width", "0.5")
     // TODO: fix problem with gliding that clicks
-    .on("click", function(d) {
-      d3.selectAll("path.selected").classed("selected", false);
-      d3.selectAll(".district_no_" + d.properties.NUMCF).classed("selected", true);
-      showPanel(d.properties.NUMCF);
-    });
+    .on("click", (d) => selectDistrict(g, d.properties.NUMCF, showPanel));
 
+}
+
+/**
+ * Selects a district from a districtId, also unselects all other districts. Will also call the showPanel method with the districtId.
+ */
+function selectDistrict(g, districtId, showPanel) {
+  g.selectAll("path.selected").classed("selected", false);
+  g.selectAll(".district_no_" + districtId).classed("selected", true);
+  showPanel(districtId);
 }
 
 /**
