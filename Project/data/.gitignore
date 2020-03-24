@@ -1,5 +1,0 @@
-# We ignore all csv files, because we can use ULog
-# files to regenerate them, and the CSV files take
-# more space. See the README.md file in this folder
-# for more details
-*.csv
