@@ -1,3 +1,50 @@
 .todo {
   font-weight: bold;
 }
+
+
+
+
+
+.four-views {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 50% 50%;
+  grid-column-gap: 0.5em;
+  grid-row-gap: 0.5em;
+  padding-right: 0.5em;
+}
+
+
+
+
+
+/**
+ * Allows a div to keep a 16:9 aspect ratio. Use like this:
+ * <div class="aspect-ratio-16-9">
+ *   <div class="aspect-ratio-child">
+ *   </div>
+ * </div>
+ * https://www.w3schools.com/howto/howto_css_aspect_ratio.asp
+ */
+.aspect-ratio-16-9 {
+  width: 100%;
+  padding-top: 56.25%;
+  position: relative;
+}
+
+.aspect-ratio-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+
+
+
+
+#path-view-container {
+  width: 50%;
+}
