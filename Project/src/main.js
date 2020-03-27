@@ -203,41 +203,60 @@ async function generate_3d_plot(file) {
 
   // TODO: Take in acount padding
   let origin = [svg_size.width / 2, svg_size.height / 2];
+  console.log(origin);
 
   let data = await data_promise;
 
   let scale_lon = d3.scaleLinear()
     .domain(d3.extent(data.map(row => row.lon)))
     .range([-1, 1]);
+    let scale_alt = d3.scaleLinear()
+      .domain(d3.extent(data.map(row => row.alt)))
+      .range([1, -1]);
   let scale_lat = d3.scaleLinear()
     .domain(d3.extent(data.map(row => row.lat)))
-    .range([-1, 1]);
-  let scale_alt = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.alt)))
     .range([-1, 1]);
   
   let flight_path = d3._3d()
     .origin(origin)
     .shape("LINE_STRIP")
-    .x(d => d.lon)
-    .y(d => d.lat)
-    .z(d => d.alt);
+    .scale(Math.min(svg_size.width, svg_size.height) / 2)
+    .x(d => scale_lon(d.lon))
+    .y(d => scale_alt(d.alt))
+    .z(d => scale_lat(d.lat));
 
-  let data_3d = flight_path([data]);
-
-  svg.append("g")
+  let theta = 0;
+  let phi = 0;
+  let path = svg.append("g")
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .append("path")
-    .datum(data_3d[0])
-    .attr("d", flight_path.draw)
-    .attr("fill", "none")
-    .attr("stroke", "black");
+    .append("path");
+  function update_3d() {
+    flight_path.rotateX(phi);
+    flight_path.rotateY(theta);
+    
+    let data_3d = flight_path([data]);
+
+    path.datum(data_3d[0])
+      .attr("d", flight_path.draw)
+      .attr("fill", "none")
+      .attr("stroke", "black");
+  }
+  update_3d();
+
+  let drag = d3.drag()
+    .on("drag", () => {
+      theta -= d3.event.dx / svg_size.width * Math.PI * 2;
+      phi += d3.event.dy / svg_size.height * Math.PI;
+      phi = Math.min(Math.max(phi, -Math.PI/2), Math.PI/2);
+      update_3d();
+    });
+  svg.call(drag);
 }
 
 
 
 
-
+// TODO: keep aspect ratio on graphs
 generate_top_plot(example_flight_file);
 generate_front_plot(example_flight_file);
 generate_left_plot(example_flight_file);
