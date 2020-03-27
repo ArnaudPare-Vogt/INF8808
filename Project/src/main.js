@@ -1,17 +1,5 @@
-d3.select(".todo")
-  .style("color", "red");
 
-let example_flight_file = new ULogFile("example_flight");
-
-example_flight_file.retreive_message("vehicle_global_position_0")
-  .then(console.log);
-
-example_flight_file.retreive_message("actuator_outputs_0")
-  .then(console.log);
-
-async function generate_top_plot(file) {
-  let data_promise = file.retreive_message("vehicle_global_position_0");
-
+async function generate_top_plot(data_promise) {
   let svg = d3.select("#path-view-top")
     .style("background-color", "lightgreen");
 
@@ -67,9 +55,7 @@ async function generate_top_plot(file) {
 
 
 
-async function generate_front_plot(file) {
-  let data_promise = file.retreive_message("vehicle_global_position_0");
-
+async function generate_front_plot(data_promise) {
   let svg = d3.select("#path-view-front")
     .style("background-color", "rgb(214, 139, 214)");
 
@@ -125,9 +111,7 @@ async function generate_front_plot(file) {
 
 
 
-async function generate_left_plot(file) {
-  let data_promise = file.retreive_message("vehicle_global_position_0");
-
+async function generate_left_plot(data_promise) {
   let svg = d3.select("#path-view-left")
     .style("background-color", "pink");
 
@@ -183,9 +167,7 @@ async function generate_left_plot(file) {
 
 
 
-async function generate_3d_plot(file) {
-  let data_promise = file.retreive_message("vehicle_global_position_0");
-
+async function generate_3d_plot(data_promise) {
   let svg = d3.select("#path-view-3d")
     .style("background-color", "lightblue");
 
@@ -255,9 +237,14 @@ async function generate_3d_plot(file) {
 
 
 
+d3.select(".todo")
+  .style("color", "red");
 
+let example_flight_file = new ULogFile("example_flight");
+
+let vehicle_global_position_promise = example_flight_file.retreive_message("vehicle_global_position_0");
 // TODO: keep aspect ratio on graphs
-generate_top_plot(example_flight_file);
-generate_front_plot(example_flight_file);
-generate_left_plot(example_flight_file);
-generate_3d_plot(example_flight_file);
+generate_top_plot(vehicle_global_position_promise);
+generate_front_plot(vehicle_global_position_promise);
+generate_left_plot(vehicle_global_position_promise);
+generate_3d_plot(vehicle_global_position_promise);
