@@ -71,7 +71,7 @@ function createSources(data) {
     let element = result.find(result_row => result_row.id === row.id);
     if (element) {
       element.results.push(get_result_from_row(row));
-      element.results.sort((a, b) => a.votes < b.votes);
+      element.results.sort((a, b) => -a.votes + b.votes);
     }
     else {
       result.push({
