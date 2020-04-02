@@ -1,3 +1,13 @@
+/**
+ * The currently selected datum. Will contain a vehicle
+ * global position message.
+ */
+let currently_selected_datum = new rxjs.Subject();
+
+
+
+
+
 async function generate_2d_plot(data_promise, plot_info) {
   let svg = d3.select("#" + plot_info.id)
     .style("background-color", plot_info.color);
@@ -66,30 +76,14 @@ async function generate_2d_plot(data_promise, plot_info) {
     .attr("stroke", "none")
     .style("stroke-width", 10)
     .style("pointer-events", "stroke")
-    .on("click", async () => {
+    .on("click", () => {
       let coords = d3.clientPoint(svg.node(), d3.event);
 
       coords[0] -= padding.left;
       coords[1] -= padding.top;
       let closest_datum = points.find(coords[0], coords[1]);
 
-      console.log(closest_datum);
-      console.log([flight_path.x()(closest_datum), flight_path.y()(closest_datum)]);  
-      svg.select("g.path-transform")
-        .selectAll("circle.click")
-        .data([{x: flight_path.x()(closest_datum), y: flight_path.y()(closest_datum)}])
-        .join(
-          enter => enter.append("circle")
-            .classed("click", true)
-            .attr("fill", "yellow")
-            .attr("stroke", "black")
-            .classed("ignore-mouse-events", true)
-            .attr("r", 2),
-          update => update,
-          exit => exit.remove()
-        )
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
+      currently_selected_datum.next(closest_datum);
     })
     .on("mousemove", () => {
       let coords = d3.clientPoint(svg.node(), d3.event);
@@ -114,6 +108,25 @@ async function generate_2d_plot(data_promise, plot_info) {
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
     });
+
+  currently_selected_datum.subscribe({
+    next: (datum) => {
+      g.selectAll("circle.click")
+        .data([{x: flight_path.x()(datum), y: flight_path.y()(datum)}])
+        .join(
+          enter => enter.append("circle")
+            .classed("click", true)
+            .attr("fill", "yellow")
+            .attr("stroke", "black")
+            .classed("ignore-mouse-events", true)
+            .attr("r", 2),
+          update => update,
+          exit => exit.remove()
+        )
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    }
+  })
 }
 
 
