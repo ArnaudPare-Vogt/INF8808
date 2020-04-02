@@ -42,13 +42,65 @@ async function generate_top_plot(data_promise) {
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
     .call(axis_lat);
 
-  svg.append("g")
+  let path = svg.append("g")
+    .classed("path-transform", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
     .append("path")
+    .classed("flight-path", true)
     .datum(data)
     .attr("d", flight_path)
     .attr("fill", "none")
     .attr("stroke", "black");
+  let path_selector = new SvgPathSelector();
+  path_selector.set_path(path.node());
+  path.on("click", async () => {
+      let coords = d3.clientPoint(svg.node(), d3.event);
+
+      coords[0] -= padding.left;
+      coords[1] -= padding.top;
+      let closest_length = path_selector.get_lenght_from_point(coords);
+
+      console.log(closest_length);
+      svg.select("g.path-transform")
+        .selectAll("circle.click")
+        .data([path.node().getPointAtLength(closest_length)])
+        .join(
+          enter => enter.append("circle")
+            .classed("click", true)
+            .attr("fill", "yellow")
+            .attr("stroke", "black")
+            .classed("ignore-mouse-events", true)
+            .attr("r", 2),
+          update => update,
+          exit => exit.remove()
+        )
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    })
+    .on("mouseover", async () => {
+      let coords = d3.clientPoint(svg.node(), d3.event);
+
+      coords[0] -= padding.left;
+      coords[1] -= padding.top;
+      let closest_length = path_selector.get_lenght_from_point(coords);
+
+      console.log(closest_length);
+      svg.select("g.path-transform")
+        .selectAll("circle.hover")
+        .data([path.node().getPointAtLength(closest_length)])
+        .join(
+          enter => enter.append("circle")
+            .classed("hover", true)
+            .classed("ignore-mouse-events", true)
+            .attr("fill", "grey")
+            .attr("stroke", "grey")
+            .attr("r", 2),
+          update => update,
+          exit => exit.remove()
+        )
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    });
 }
 
 
@@ -234,6 +286,8 @@ async function generate_3d_plot(data_promise) {
     });
   svg.call(drag);
 }
+
+
 
 
 

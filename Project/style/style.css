@@ -48,3 +48,10 @@
 #path-view-container {
   width: 75%;
 }
+
+
+
+
+.ignore-mouse-events {
+  pointer-events: none;
+}
