@@ -24,12 +24,15 @@ class SvgPathSelector {
     let step_size = this.search_radius;
     let number_of_points = this._svg_path.getTotalLength() / step_size;
 
+    let points_array = [];
     for(let i = 0; i < number_of_points; ++i) {
-      this._points.add({
-        x: this._svg_path.getPointAtLength(step_size * i).x,
-        y: this._svg_path.getPointAtLength(step_size * i).y,
+      let pt = this._svg_path.getPointAtLength(step_size * i); // This call is expensive :(
+      points_array.push({
+        x: pt.x,
+        y: pt.y,
         path_length: step_size * i});
     }
+    this._points.addAll(points_array);
   }
   get_lenght_from_point(point) {
     // IDEA : Create point iteratively on the path using getPointAtLength.
