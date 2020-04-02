@@ -1,7 +1,6 @@
-
-async function generate_top_plot(data_promise) {
-  let svg = d3.select("#path-view-top")
-    .style("background-color", "lightgreen");
+async function generate_2d_plot(data_promise, plot_info) {
+  let svg = d3.select("#" + plot_info.id)
+    .style("background-color", plot_info.color);
 
   let svg_size = {
     width: svg.node().clientWidth,
@@ -17,30 +16,34 @@ async function generate_top_plot(data_promise) {
 
   let data = await data_promise;
 
-  let scale_lon = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.lon)))
-    .range([0, svg_size.width - padding.left - padding.right]);
-  let scale_lat = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.lat)))
-    .range([svg_size.height - padding.top - padding.bottom, 0]);
-  
-  let axis_lon = d3.axisBottom(scale_lon);
-  let axis_lat = d3.axisLeft(scale_lat);
+  let scales = {
+    lon: d3.scaleLinear()
+      .domain(d3.extent(data.map(row => row.lon))),
+    lat: d3.scaleLinear()
+      .domain(d3.extent(data.map(row => row.lat))),
+    alt: d3.scaleLinear()
+      .domain(d3.extent(data.map(row => row.alt)))
+  };
+  scales[plot_info.x].range([0, svg_size.width - padding.left - padding.right]);
+  scales[plot_info.y].range([svg_size.height - padding.top - padding.bottom, 0]);
+
+  let axis_x = d3.axisBottom(scales[plot_info.x]);
+  let axis_y = d3.axisLeft(scales[plot_info.y]);
   let flight_path = d3.line()
-    .x(d => scale_lon(d.lon))
-    .y(d => scale_lat(d.lat));
+    .x(d => scales[plot_info.x](d[plot_info.x]))
+    .y(d => scales[plot_info.y](d[plot_info.y]));
 
   svg.append("g")
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(" + padding.left + "," + (svg_size.height - padding.bottom) + ")")
-    .call(axis_lon);
+    .call(axis_x);
 
   svg.append("g")
     .classed("axis", true)
     .classed("y", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .call(axis_lat);
+    .call(axis_y);
 
   let g = svg.append("g")
     .classed("path-transform", true)
@@ -108,118 +111,6 @@ async function generate_top_plot(data_promise) {
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
     });
-}
-
-
-
-
-
-async function generate_front_plot(data_promise) {
-  let svg = d3.select("#path-view-front")
-    .style("background-color", "rgb(214, 139, 214)");
-
-  let svg_size = {
-    width: svg.node().clientWidth,
-    height: svg.node().clientHeight
-  };
-
-  let padding = {
-    left: 50,
-    right: 10,
-    top: 10,
-    bottom: 20,
-  }
-
-  let data = await data_promise;
-
-  let scale_lon = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.lon)))
-    .range([0, svg_size.width - padding.left - padding.right]);
-  let scale_alt = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.alt)))
-    .range([svg_size.height - padding.top - padding.bottom, 0]);
-  
-  let axis_lon = d3.axisBottom(scale_lon);
-  let axis_alt = d3.axisLeft(scale_alt);
-  let flight_path = d3.line()
-    .x(d => scale_lon(d.lon))
-    .y(d => scale_alt(d.alt));
-
-  svg.append("g")
-    .classed("axis", true)
-    .classed("x", true)
-    .attr("transform", "translate(" + padding.left + "," + (svg_size.height - padding.bottom) + ")")
-    .call(axis_lon);
-
-  svg.append("g")
-    .classed("axis", true)
-    .classed("y", true)
-    .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .call(axis_alt);
-
-  svg.append("g")
-    .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .append("path")
-    .datum(data)
-    .attr("d", flight_path)
-    .attr("fill", "none")
-    .attr("stroke", "black");
-}
-
-
-
-
-
-async function generate_left_plot(data_promise) {
-  let svg = d3.select("#path-view-left")
-    .style("background-color", "pink");
-
-  let svg_size = {
-    width: svg.node().clientWidth,
-    height: svg.node().clientHeight
-  };
-
-  let padding = {
-    left: 50,
-    right: 10,
-    top: 10,
-    bottom: 20,
-  }
-
-  let data = await data_promise;
-
-  let scale_lat = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.lat)))
-    .range([0, svg_size.width - padding.left - padding.right]);
-  let scale_alt = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.alt)))
-    .range([svg_size.height - padding.top - padding.bottom, 0]);
-  
-  let axis_lat = d3.axisBottom(scale_lat);
-  let axis_alt = d3.axisLeft(scale_alt);
-  let flight_path = d3.line()
-    .x(d => scale_lat(d.lat))
-    .y(d => scale_alt(d.alt));
-
-  svg.append("g")
-    .classed("axis", true)
-    .classed("x", true)
-    .attr("transform", "translate(" + padding.left + "," + (svg_size.height - padding.bottom) + ")")
-    .call(axis_lat);
-
-  svg.append("g")
-    .classed("axis", true)
-    .classed("y", true)
-    .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .call(axis_alt);
-
-  svg.append("g")
-    .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .append("path")
-    .datum(data)
-    .attr("d", flight_path)
-    .attr("fill", "none")
-    .attr("stroke", "black");
 }
 
 
@@ -305,7 +196,22 @@ let example_flight_file = new ULogFile("example_flight");
 
 let vehicle_global_position_promise = example_flight_file.retreive_message("vehicle_global_position_0");
 // TODO: keep aspect ratio on graphs
-generate_top_plot(vehicle_global_position_promise);
-generate_front_plot(vehicle_global_position_promise);
-generate_left_plot(vehicle_global_position_promise);
+generate_2d_plot(vehicle_global_position_promise, {
+  id: "path-view-top",
+  color: "lightgreen",
+  x: "lon",
+  y: "lat"
+});
+generate_2d_plot(vehicle_global_position_promise, {
+  id: "path-view-front",
+  color: "rgb(214, 139, 214)",
+  x: "lon",
+  y: "alt"
+});
+generate_2d_plot(vehicle_global_position_promise, {
+  id: "path-view-left",
+  color: "pink",
+  x: "lat",
+  y: "alt"
+});
 generate_3d_plot(vehicle_global_position_promise);
