@@ -1,31 +1,3 @@
-Array.prototype.min = function(valueof) {
-  let values = this;
-  let min;
-  let minIndex = -1;
-  let index = -1;
-  if (valueof === undefined) {
-    for (const value of values) {
-      ++index;
-      if (value != null
-          && (min > value || (min === undefined && value >= value))) {
-        min = value, minIndex = index;
-      }
-    }
-  } else {
-    for (let value of values) {
-      if ((value = valueof(value, ++index, values)) != null
-          && (min > value || (min === undefined && value >= value))) {
-        min = value, minIndex = index;
-      }
-    }
-  }
-  return values[minIndex];
-}
-
-
-
-
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -45,13 +17,15 @@ class SvgPathSelector {
     this.recalculate_points();
   }
   recalculate_points() {
-    this._points = [];
+    this._points = d3.quadtree()
+      .x((d) => d.x)
+      .y((d) => d.y);
     
     let step_size = this.search_radius;
     let number_of_points = this._svg_path.getTotalLength() / step_size;
 
     for(let i = 0; i < number_of_points; ++i) {
-      this._points.push({
+      this._points.add({
         x: this._svg_path.getPointAtLength(step_size * i).x,
         y: this._svg_path.getPointAtLength(step_size * i).y,
         path_length: step_size * i});
@@ -65,7 +39,6 @@ class SvgPathSelector {
 
     // Current implementation: Just create a ton of points and find the closest.
 
-    let distance = (p) => Math.sqrt(Math.pow(p.x - point[0], 2) + Math.pow(p.y - point[1], 2));
-    return this._points.min(distance).path_length;
+    return this._points.find(point[0], point[1]).path_length;
   }
 }
