@@ -42,10 +42,10 @@ async function generate_top_plot(data_promise) {
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
     .call(axis_lat);
 
-  let path = svg.append("g")
+  let g = svg.append("g")
     .classed("path-transform", true)
-    .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .append("path")
+    .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+  let path = g.append("path")
     .classed("flight-path", true)
     .datum(data)
     .attr("d", flight_path)
@@ -53,7 +53,15 @@ async function generate_top_plot(data_promise) {
     .attr("stroke", "black");
   let path_selector = new SvgPathSelector();
   path_selector.set_path(path.node());
-  path.on("click", async () => {
+
+  let selector_path = g.append("path")
+    .datum(data)
+    .attr("d", flight_path)
+    .attr("fill", "none")
+    .attr("stroke", "none")
+    .style("stroke-width", 10)
+    .style("pointer-events", "stroke");
+  selector_path.on("click", async () => {
       let coords = d3.clientPoint(svg.node(), d3.event);
 
       coords[0] -= padding.left;
@@ -77,14 +85,13 @@ async function generate_top_plot(data_promise) {
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
     })
-    .on("mouseover", async () => {
+    .on("mousemove", () => {
       let coords = d3.clientPoint(svg.node(), d3.event);
 
       coords[0] -= padding.left;
       coords[1] -= padding.top;
       let closest_length = path_selector.get_lenght_from_point(coords);
 
-      console.log(closest_length);
       svg.select("g.path-transform")
         .selectAll("circle.hover")
         .data([path.node().getPointAtLength(closest_length)])
