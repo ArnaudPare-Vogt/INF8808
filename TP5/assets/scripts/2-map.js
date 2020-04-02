@@ -14,18 +14,7 @@
  * @see https://gist.github.com/d3noob/9211665
  */
 function initTileLayer(L, map) {
-
-    /* TODO: Initialize the "tileLayer" with the following properties:
-       - URL du fond de carte: https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png;
-       - Zoom maximum: 10;
-       - Zoom minimum: 1.
-
-     Set the initial view of the map with the following values:
-       - Coordonnées: [57.3, -94.7];
-       - Niveau de zoom: 4.
-   */
   map.setView([57.3, -94.7], 4);
-  // TODO: Attribution
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> Contributors',
     minZoom: 1,
@@ -42,7 +31,6 @@ function initTileLayer(L, map) {
  * @see https://gist.github.com/d3noob/9211665
  */
 function initSvgLayer(map) {
-  // TODO: Create the SVG element basing yourself on the above example. Make sure to create a "g" element in the SVG element. 
   let svg = d3.select(map.getPanes().overlayPane).append("svg");
   svg.append("g").attr("class", "leaflet-zoom-hide");
   return svg;
@@ -59,14 +47,6 @@ function initSvgLayer(map) {
  * @param showPanel     The function called to display the panel. 
  */
 function createDistricts(g, path, canada, sources, color, showPanel) {
-  /* TODO: Create the traces for the districts. Make sur to follow these specs: 
-       - The color of the district should correspond to the party of the winning candidate
-       - The fill-opacity should be 80%;
-       - The color of the strokes should be "#333";
-       - When a district is clicked, it should get selected (class "selected") and the information panel 
-         associated with the riding should appear (use showPanel). Note it is only possible to select one
-         riding at a time. 
-   */
   g.selectAll("path")
     .data(canada.features)
     .enter()
@@ -77,9 +57,8 @@ function createDistricts(g, path, canada, sources, color, showPanel) {
       let district = sources.find((row) => row.id === d.properties.NUMCF);
       return color(district.results[0].party);
     })
-    .attr("stroke", "black")
+    .attr("stroke", "#333")
     .attr("stroke-width", "0.5")
-    // TODO: fix problem with gliding that clicks
     .on("click", (d) => selectDistrict(g, d.properties.NUMCF, showPanel));
 
 }
@@ -106,7 +85,6 @@ function selectDistrict(g, districtId, showPanel) {
  * @see https://gist.github.com/d3noob/9211665
  */
 function updateMap(svg, g, path, canada) {
-  // TODO: Update the SVG element, the postion of the group "g" and the display of the traces based on the provided example 
   let bounds = path.bounds(canada);
   let topLeft = bounds[0];
 	let bottomRight = bounds[1];

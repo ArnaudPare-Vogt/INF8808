@@ -56,8 +56,6 @@ function convertNumbers(data) {
  *                  ]
  */
 function createSources(data) {
-  // TODO: Return the object with the format described above. Make sure to sort the table "results" for each entry 
-  // in decreasing order of the votes (the winning candidate must be the first element of the table)
   let get_result_from_row = (row) => {
     return {
       candidate: row.candidate,
