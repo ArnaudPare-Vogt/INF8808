@@ -32,6 +32,11 @@ async function generate_2d_plot(data_promise, plot_info) {
   let flight_path = d3.line()
     .x(d => scales[plot_info.x](d[plot_info.x]))
     .y(d => scales[plot_info.y](d[plot_info.y]));
+  
+  let points = d3.quadtree()
+    .x(flight_path.x())
+    .y(flight_path.y());
+  points.addAll(data);
 
   svg.append("g")
     .classed("axis", true)
@@ -48,33 +53,31 @@ async function generate_2d_plot(data_promise, plot_info) {
   let g = svg.append("g")
     .classed("path-transform", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
-  let path = g.append("path")
+  g.append("path")
     .classed("flight-path", true)
     .datum(data)
     .attr("d", flight_path)
     .attr("fill", "none")
     .attr("stroke", "black");
-  let path_selector = new SvgPathSelector();
-  path_selector.set_path(path.node());
-
-  let selector_path = g.append("path")
+  g.append("path")
     .datum(data)
     .attr("d", flight_path)
     .attr("fill", "none")
     .attr("stroke", "none")
     .style("stroke-width", 10)
-    .style("pointer-events", "stroke");
-  selector_path.on("click", async () => {
+    .style("pointer-events", "stroke")
+    .on("click", async () => {
       let coords = d3.clientPoint(svg.node(), d3.event);
 
       coords[0] -= padding.left;
       coords[1] -= padding.top;
-      let closest_length = path_selector.get_lenght_from_point(coords);
+      let closest_datum = points.find(coords[0], coords[1]);
 
-      console.log(closest_length);
+      console.log(closest_datum);
+      console.log([flight_path.x()(closest_datum), flight_path.y()(closest_datum)]);  
       svg.select("g.path-transform")
         .selectAll("circle.click")
-        .data([path.node().getPointAtLength(closest_length)])
+        .data([{x: flight_path.x()(closest_datum), y: flight_path.y()(closest_datum)}])
         .join(
           enter => enter.append("circle")
             .classed("click", true)
@@ -93,11 +96,11 @@ async function generate_2d_plot(data_promise, plot_info) {
 
       coords[0] -= padding.left;
       coords[1] -= padding.top;
-      let closest_length = path_selector.get_lenght_from_point(coords);
+      let closest_datum = points.find(coords[0], coords[1]);
 
       svg.select("g.path-transform")
         .selectAll("circle.hover")
-        .data([path.node().getPointAtLength(closest_length)])
+        .data([{x: flight_path.x()(closest_datum), y: flight_path.y()(closest_datum)}])
         .join(
           enter => enter.append("circle")
             .classed("hover", true)
