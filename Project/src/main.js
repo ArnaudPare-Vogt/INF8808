@@ -180,19 +180,55 @@ async function generate_3d_plot(data_promise) {
 
   let theta = 0;
   let phi = 0;
-  let path = svg.append("g")
+
+  let points; // Our quadtree
+  let g = svg.append("g")
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .append("path");
+  let path = g.append("path")
+    .attr("fill", "none")
+    .attr("stroke", "black");
+  let hover_path = g.append("path")
+    .attr("fill", "none")
+    .attr("stroke", "none")
+    .style("stroke-width", 10)
+    .style("pointer-events", "stroke")
+    .on("mousemove", () => {
+      let coords = d3.clientPoint(svg.node(), d3.event);
+
+      coords[0] -= padding.left;
+      coords[1] -= padding.top;
+      let closest_datum = points.find(coords[0], coords[1]);
+
+      g.selectAll("circle.hover")
+        .data([closest_datum])
+        .join(
+          enter => enter.append("circle")
+            .classed("hover", true)
+            .classed("ignore-mouse-events", true)
+            .attr("fill", "grey")
+            .attr("stroke", "grey")
+            .attr("r", 2),
+          update => update,
+          exit => exit.remove()
+        )
+        .attr("cx", points.x())
+        .attr("cy", points.y());
+    });
+
   function update_3d() {
     flight_path.rotateX(phi);
     flight_path.rotateY(theta);
     
     let data_3d = flight_path([data]);
+    points = d3.quadtree()
+      .x(d => d.projected.x)
+      .y(d => d.projected.y);
+    points.addAll(data_3d[0]);
 
     path.datum(data_3d[0])
-      .attr("d", flight_path.draw)
-      .attr("fill", "none")
-      .attr("stroke", "black");
+      .attr("d", flight_path.draw);
+    hover_path.datum(data_3d[0])
+      .attr("d", flight_path.draw);
   }
   update_3d();
 
