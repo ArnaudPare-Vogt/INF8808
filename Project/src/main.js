@@ -2,7 +2,7 @@
  * The currently selected datum. Will contain a vehicle
  * global position message.
  */
-let currently_selected_datum = new rxjs.Subject();
+let currently_selected_datum = new rxjs.BehaviorSubject(undefined);
 
 
 
@@ -129,6 +129,7 @@ async function generate_2d_plot(data_promise, plot_info) {
 
   currently_selected_datum.subscribe({
     next: (datum) => {
+      if (!datum) return;
       g.selectAll("circle.click")
         .data([{x: flight_path.x()(datum), y: flight_path.y()(datum)}])
         .join(
@@ -206,8 +207,30 @@ async function generate_3d_plot(data_promise) {
     .style("stroke-width", 10)
     .style("pointer-events", "stroke")
     .on("mousemove", () => update_hover_circle(g, points))
-    .on("mouseleave", () => remove_hover_circle(g));
+    .on("mouseleave", () => remove_hover_circle(g))
+    .on("click", () => {
+      let coords = d3.clientPoint(g.node(), d3.event);
+      let closest_datum = points.find(coords[0], coords[1]);
+      currently_selected_datum.next(closest_datum);
+    });
 
+  function update_selection_circle(datum) {
+    if (!datum) return;
+    g.selectAll("circle.click")
+      .data(flight_path([[datum]])[0])
+      .join(
+        enter => enter.append("circle")
+          .classed("click", true)
+          .attr("fill", "yellow")
+          .attr("stroke", "black")
+          .classed("ignore-mouse-events", true)
+          .attr("r", 2),
+        update => update,
+        exit => exit.remove()
+      )
+      .attr("cx", points.x())
+      .attr("cy", points.y());
+  }
   function update_3d() {
     flight_path.rotateX(phi);
     flight_path.rotateY(theta);
@@ -222,6 +245,9 @@ async function generate_3d_plot(data_promise) {
       .attr("d", flight_path.draw);
     hover_path.datum(data_3d[0])
       .attr("d", flight_path.draw);
+    
+    // If we have a selection circle, we need to uptate its position
+    update_selection_circle(currently_selected_datum.getValue());
   }
   update_3d();
 
@@ -233,6 +259,10 @@ async function generate_3d_plot(data_promise) {
       update_3d();
     });
   svg.call(drag);
+
+  currently_selected_datum.subscribe({
+    next: update_selection_circle
+  });
 }
 
 
