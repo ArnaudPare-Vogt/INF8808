@@ -77,19 +77,13 @@ async function generate_2d_plot(data_promise, plot_info) {
     .style("stroke-width", 10)
     .style("pointer-events", "stroke")
     .on("click", () => {
-      let coords = d3.clientPoint(svg.node(), d3.event);
-
-      coords[0] -= padding.left;
-      coords[1] -= padding.top;
+      let coords = d3.clientPoint(g.node(), d3.event);
       let closest_datum = points.find(coords[0], coords[1]);
 
       currently_selected_datum.next(closest_datum);
     })
     .on("mousemove", () => {
-      let coords = d3.clientPoint(svg.node(), d3.event);
-
-      coords[0] -= padding.left;
-      coords[1] -= padding.top;
+      let coords = d3.clientPoint(g.node(), d3.event);
       let closest_datum = points.find(coords[0], coords[1]);
 
       svg.select("g.path-transform")
@@ -193,10 +187,7 @@ async function generate_3d_plot(data_promise) {
     .style("stroke-width", 10)
     .style("pointer-events", "stroke")
     .on("mousemove", () => {
-      let coords = d3.clientPoint(svg.node(), d3.event);
-
-      coords[0] -= padding.left;
-      coords[1] -= padding.top;
+      let coords = d3.clientPoint(g.node(), d3.event);
       let closest_datum = points.find(coords[0], coords[1]);
 
       g.selectAll("circle.hover")
