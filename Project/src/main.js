@@ -8,6 +8,48 @@ let currently_selected_datum = new rxjs.Subject();
 
 
 
+/**
+ * Update the status of a hover circle over a graph
+ * @param {*} g the g element of the graph
+ * @param {*} points The quadtree of points to search in
+ */
+function update_hover_circle(g, points) {
+  let coords = d3.clientPoint(g.node(), d3.event);
+  let closest_datum = points.find(coords[0], coords[1]);
+
+  g.selectAll("circle.hover")
+    .data([closest_datum])
+    .join(
+      enter => enter.append("circle")
+        .classed("hover", true)
+        .classed("ignore-mouse-events", true)
+        .attr("fill", "grey")
+        .attr("stroke", "grey")
+        .attr("r", 2),
+      update => update,
+      exit => exit.remove()
+    )
+    .attr("cx", points.x())
+    .attr("cy", points.y());
+}
+
+
+
+
+
+/**
+ * Removes the hover circle over a graph
+ * @param {*} g the g element of the graph
+ */
+function remove_hover_circle(g) {
+  g.selectAll("circle.hover")
+    .remove();
+}
+
+
+
+
+
 async function generate_2d_plot(data_promise, plot_info) {
   let svg = d3.select("#" + plot_info.id)
     .style("background-color", plot_info.color);
@@ -82,31 +124,8 @@ async function generate_2d_plot(data_promise, plot_info) {
 
       currently_selected_datum.next(closest_datum);
     })
-    .on("mousemove", () => {
-      let coords = d3.clientPoint(g.node(), d3.event);
-      let closest_datum = points.find(coords[0], coords[1]);
-
-      svg.select("g.path-transform")
-        .selectAll("circle.hover")
-        .data([{x: flight_path.x()(closest_datum), y: flight_path.y()(closest_datum)}])
-        .join(
-          enter => enter.append("circle")
-            .classed("hover", true)
-            .classed("ignore-mouse-events", true)
-            .attr("fill", "grey")
-            .attr("stroke", "grey")
-            .attr("r", 2),
-          update => update,
-          exit => exit.remove()
-        )
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
-    })
-    .on("mouseleave", () => {
-      svg.select("g.path-transform")
-        .selectAll("circle.hover")
-        .remove();
-    });
+    .on("mousemove", () => update_hover_circle(g, points))
+    .on("mouseleave", () => remove_hover_circle(g));
 
   currently_selected_datum.subscribe({
     next: (datum) => {
@@ -186,25 +205,8 @@ async function generate_3d_plot(data_promise) {
     .attr("stroke", "none")
     .style("stroke-width", 10)
     .style("pointer-events", "stroke")
-    .on("mousemove", () => {
-      let coords = d3.clientPoint(g.node(), d3.event);
-      let closest_datum = points.find(coords[0], coords[1]);
-
-      g.selectAll("circle.hover")
-        .data([closest_datum])
-        .join(
-          enter => enter.append("circle")
-            .classed("hover", true)
-            .classed("ignore-mouse-events", true)
-            .attr("fill", "grey")
-            .attr("stroke", "grey")
-            .attr("r", 2),
-          update => update,
-          exit => exit.remove()
-        )
-        .attr("cx", points.x())
-        .attr("cy", points.y());
-    });
+    .on("mousemove", () => update_hover_circle(g, points))
+    .on("mouseleave", () => remove_hover_circle(g));
 
   function update_3d() {
     flight_path.rotateX(phi);
