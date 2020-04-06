@@ -107,6 +107,11 @@ async function generate_2d_plot(data_promise, plot_info) {
         )
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
+    })
+    .on("mouseleave", () => {
+      svg.select("g.path-transform")
+        .selectAll("circle.hover")
+        .remove();
     });
 
   currently_selected_datum.subscribe({
