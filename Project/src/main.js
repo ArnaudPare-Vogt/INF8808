@@ -191,6 +191,10 @@ async function generate_3d_plot(data_promise) {
     .x(d => scale_lon(d.lon))
     .y(d => scale_alt(d.alt))
     .z(d => scale_lat(d.lat));
+  let axis_projection = d3._3d()
+    .origin(origin)
+    .shape("LINE_STRIP")
+    .scale(Math.min(svg_size.width, svg_size.height) / 2);
 
   let theta = 0;
   let phi = 0;
@@ -234,6 +238,26 @@ async function generate_3d_plot(data_promise) {
   function update_3d() {
     flight_path.rotateX(phi);
     flight_path.rotateY(theta);
+    axis_projection.rotateX(phi);
+    axis_projection.rotateY(theta);
+
+    let axis_data = [
+      [[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],// x
+      [[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]],// y
+      [[0.0, -1.0, 0.0], [0.0, 1.0, 0.0]] // z
+    ];
+    let axis_color = ["red", "green", "blue"];
+    let projected_axis_data = axis_projection(axis_data);
+    g.selectAll("path.axis")
+      .data(projected_axis_data)
+      .join(
+        enter => enter.append("path")
+          .classed("axis", true)
+          .attr("fill", "none")
+          .attr("stroke", (d, i) => axis_color[i]),
+        update => update.attr("d", axis_projection.draw),
+        exit => exit.remove()
+      );
     
     let data_3d = flight_path([data]);
     points = d3.quadtree()
