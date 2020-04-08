@@ -269,6 +269,27 @@ async function generate_3d_plot(data_promise) {
 
 
 
+function setup_selected_point_info(selected_datum_subject) {
+  selected_datum_subject.subscribe({
+    next: (d) => {
+      if (!d) {
+        d = {
+          lon: "?",
+          lat: "?",
+          alt: "?"
+        };
+      }
+      d3.selectAll(".pos_x").text(d.lon);
+      d3.selectAll(".pos_y").text(d.lat);
+      d3.selectAll(".pos_z").text(d.alt);
+    }
+  })
+}
+
+
+
+
+
 d3.select(".todo")
   .style("color", "red");
 
@@ -295,3 +316,4 @@ generate_2d_plot(vehicle_global_position_promise, {
   y: "alt"
 });
 generate_3d_plot(vehicle_global_position_promise);
+setup_selected_point_info(currently_selected_datum);

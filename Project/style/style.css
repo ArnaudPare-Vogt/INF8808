@@ -51,8 +51,18 @@
 
 
 
+/* Main page div layout */
+#main-page {
+  width: 70%;
+  display: flex;
+}
+
 #path-view-container {
-  width: 50%;
+  width: 75%;
+}
+
+#side-view-container {
+  width: 25%;
 }
 
 
