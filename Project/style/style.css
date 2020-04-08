@@ -20,7 +20,7 @@
 
 
 /**
- * Allows a div to keep a 16:9 aspect ratio. Use like this:
+ * Allows a div to keep a certain aspect ratio. Use like this:
  * <div class="aspect-ratio-16-9">
  *   <div class="aspect-ratio-child">
  *   </div>
@@ -30,6 +30,12 @@
 .aspect-ratio-16-9 {
   width: 100%;
   padding-top: 56.25%;
+  position: relative;
+}
+
+.aspect-ratio-1-1 {
+  width: 100%;
+  padding-top: 100%;
   position: relative;
 }
 
@@ -46,7 +52,7 @@
 
 
 #path-view-container {
-  width: 75%;
+  width: 50%;
 }
 
 
