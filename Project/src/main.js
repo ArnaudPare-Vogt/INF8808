@@ -255,9 +255,9 @@ async function generate_3d_plot(data_promise) {
           .classed("axis", true)
           .attr("fill", "none")
           .attr("stroke", (d, i) => axis_color[i]),
-        update => update.attr("d", axis_projection.draw),
+        update => update,
         exit => exit.remove()
-      );
+      ).attr("d", axis_projection.draw);
     
     let data_3d = flight_path([data]);
     points = d3.quadtree()
