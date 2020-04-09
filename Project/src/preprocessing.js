@@ -1,5 +1,5 @@
 const message_preprocessors = {
-  "vehicle_global_position_0": (row, parse_timestamp) => {
+  "vehicle_global_position_0": (row, parse_timestamp, data) => {
     // See https://github.com/PX4/Firmware/blob/master/msg/vehicle_global_position.msg
     row.lat = parseFloat(row.lat);
     row.lon = parseFloat(row.lon);
@@ -14,6 +14,19 @@ const message_preprocessors = {
     row.terrain_alt = parseFloat(row.terrain_alt);
     row.terrain_alt_valid = parseInt(row.terrain_alt_valid) !== 0;
     row.dead_reckoning = parseInt(row.dead_reckoning) !== 0;
+
+    let east_north = lat_lon_distance_to_meters(
+      data[0].lat,
+      row.lat,
+      data[0].lon,
+      row.lon
+    );
+
+    row.enu = {
+      e: east_north[0],
+      n: east_north[1],
+      u: row.alt
+    };
   },
   "vehicle_gps_position_0": (row, parse_timestamp) => {
     // See https://github.com/PX4/Firmware/blob/master/msg/vehicle_gps_position.msg
@@ -249,7 +262,7 @@ class ULogFile {
     data.map(row => {
       row.timestamp = parse_timestamp(row.timestamp);
       if (preprocessor) {
-        preprocessor(row, parse_timestamp);
+        preprocessor(row, parse_timestamp, data);
       }
     });
 

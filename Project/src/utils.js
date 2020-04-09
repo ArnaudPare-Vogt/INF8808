@@ -26,7 +26,7 @@ function sleep(ms) {
 function lat_lon_distance_to_meters(lat_1, lat_2, lon_1, lon_2) {
   // See https://gis.stackexchange.com/questions/203224/longitude-difference-to-meters
   const EARTH_RADIUS = 6378137.0;
-  let north = 111.19 * (lat_2 - lat_1);
-  let east = EARTH_RADIUS * Math.cos(lat_1) * (lon_2 - lon_1);
+  let north = 111190 * (lat_2 - lat_1);
+  let east = EARTH_RADIUS * Math.cos(lat_1 * Math.PI / 180) * (lon_2 - lon_1) * Math.PI / 180;
   return [east, north];
 }
