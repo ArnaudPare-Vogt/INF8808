@@ -168,8 +168,9 @@ async function generate_3d_plot(data_promise) {
     bottom: 10,
   }
 
-  // TODO: Take in acount padding
-  let origin = [svg_size.width / 2, svg_size.height / 2];
+  let origin = [
+    (svg_size.width - padding.left - padding.right) / 2,
+    (svg_size.height - padding.top - padding.bottom ) / 2];
   console.log(origin);
 
   let data = await data_promise;
