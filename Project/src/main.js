@@ -174,23 +174,35 @@ async function generate_3d_plot(data_promise) {
 
   let data = await data_promise;
 
-  let scale_lon = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.lon)))
-    .range([-1, 1]);
-    let scale_alt = d3.scaleLinear()
-      .domain(d3.extent(data.map(row => row.alt)))
-      .range([1, -1]);
-  let scale_lat = d3.scaleLinear()
-    .domain(d3.extent(data.map(row => row.lat)))
-    .range([-1, 1]);
-  
+  let accessors = [
+    row => row.lon,
+    row => row.lat,
+    row => row.alt,
+  ];
+  let extents = [
+    d3.extent(data.map(row => row.enu.e)),
+    d3.extent(data.map(row => row.enu.n)),
+    d3.extent(data.map(row => row.enu.u))
+  ];
+  let widths = range(3)
+    .map(i => extents[i][1] - extents[i][0]);
+  let max_width = d3.max(widths);
+
+  let scales = range(3).map(i => 
+    d3.scaleLinear()
+      .domain(d3.extent(data.map(accessors[i])))
+      .range([-widths[i]/max_width, widths[i]/max_width])
+  );
+  // We invert the altitude scale because svgs have 0 as top
+  scales[2].range([scales[2].range()[1], scales[2].range()[0]]);
+
   let flight_path = d3._3d()
     .origin(origin)
     .shape("LINE_STRIP")
     .scale(Math.min(svg_size.width, svg_size.height) / 2)
-    .x(d => scale_lon(d.lon))
-    .y(d => scale_alt(d.alt))
-    .z(d => scale_lat(d.lat));
+    .x(d => scales[0](d.lon))
+    .y(d => scales[2](d.alt))
+    .z(d => scales[1](d.lat));
   let axis_projection = d3._3d()
     .origin(origin)
     .shape("LINE_STRIP")
