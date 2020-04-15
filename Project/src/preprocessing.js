@@ -79,6 +79,8 @@ const message_preprocessors = {
     row.y = parseFloat(row.y);
     row.z = parseFloat(row.z);
     row.temperature = parseFloat(row.temperature);
+    
+    row.mag = Math.sqrt(Math.pow(row.x, 2) + Math.pow(row.y, 2) + Math.pow(row.z, 2));
   },
   "sensor_baro_0": (row, parse_timestamp) => {
     // See https://github.com/PX4/Firmware/blob/master/msg/sensor_baro.msg
@@ -100,6 +102,8 @@ const message_preprocessors = {
     row.y_raw = parseInt(row.y_raw);
     row.z_raw = parseInt(row.z_raw);
     row.is_external = parseInt(row.is_external) !== 0;
+
+    row.mag = Math.sqrt(Math.pow(row.x, 2) + Math.pow(row.y, 2) + Math.pow(row.z, 2));
   },
   "sensor_gyro_0": (row, parse_timestamp) => {
     // See https://github.com/PX4/Firmware/blob/master/msg/sensor_gyro.msg

@@ -325,6 +325,64 @@ function setup_selected_point_info(selected_datum_subject) {
 
 
 
+async function generate_path_line_chart(example_flight_file) {
+  let acceleration_data_promise = example_flight_file.retreive_message("sensor_accel_0");
+
+  let svg = d3.select("#path-line-chart");
+  let svg_size = {
+    width: svg.node().clientWidth,
+    height: svg.node().clientHeight
+  };
+  
+  let padding = {
+    left: 50,
+    right: 10,
+    top: 10,
+    bottom: 20,
+  }
+
+  let g = svg.append("g")
+    .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+  
+  let acceleration_data = await acceleration_data_promise;
+
+
+  let scale_x = d3.scaleTime()
+    .domain(d3.extent(acceleration_data, row => row.timestamp))
+    .range([0, svg_size.width - padding.left - padding.right]);
+  let scale_y = d3.scaleLinear()
+    .domain(d3.extent(acceleration_data, row => row.mag))
+    .range([svg_size.height - padding.top - padding.bottom, 0]);
+  
+  let axis_x = d3.axisBottom(scale_x);
+  let axis_y = d3.axisLeft(scale_y);
+
+  g.append("g")
+    .classed("axis", true)
+    .classed("x", true)
+    .attr("transform", "translate(0," + (svg_size.height - padding.bottom - padding.top) + ")")
+    .call(axis_x);
+  
+  g.append("g")
+    .classed("axis", true)
+    .classed("y", true)
+    .attr("transform", "translate(0,0)")
+    .call(axis_y);
+
+  let accel_line = d3.line()
+    .x(row => scale_x(row.timestamp))
+    .y(row => scale_y(row.mag));
+
+  g.append("path")
+    .datum(acceleration_data)
+    .attr("d", accel_line)
+    .attr("stroke", "black")
+    .classed("graph-line", true);
+}
+
+
+
+
 
 d3.select(".todo")
   .style("color", "red");
@@ -353,3 +411,4 @@ generate_2d_plot(vehicle_global_position_promise, {
 });
 generate_3d_plot(vehicle_global_position_promise);
 setup_selected_point_info(currently_selected_datum);
+generate_path_line_chart(example_flight_file);
