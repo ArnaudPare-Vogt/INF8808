@@ -67,6 +67,17 @@ async function generate_2d_plot(data_promise, plot_info) {
   }
 
   let data = await data_promise;
+  console.log(data);
+
+  let extents = {
+    lon: d3.extent(data.map(row => row.enu.e)),
+    lat: d3.extent(data.map(row => row.enu.n)),
+    alt: d3.extent(data.map(row => row.enu.u))
+  };
+  let widths = {};
+  widths[plot_info.x] = extents[plot_info.x][1] - extents[plot_info.x][0];
+  widths[plot_info.y] = extents[plot_info.y][1] - extents[plot_info.y][0];
+  let max_width = Math.max(widths[plot_info.x], widths[plot_info.y]);
 
   let scales = {
     lon: d3.scaleLinear()
@@ -76,8 +87,8 @@ async function generate_2d_plot(data_promise, plot_info) {
     alt: d3.scaleLinear()
       .domain(d3.extent(data.map(row => row.alt)))
   };
-  scales[plot_info.x].range([0, svg_size.width - padding.left - padding.right]);
-  scales[plot_info.y].range([svg_size.height - padding.top - padding.bottom, 0]);
+  scales[plot_info.x].range([0, widths[plot_info.x] / max_width * (svg_size.width - padding.left - padding.right)]);
+  scales[plot_info.y].range([widths[plot_info.y] / max_width * (svg_size.height - padding.top - padding.bottom), 0]);
 
   let axis_x = d3.axisBottom(scales[plot_info.x]);
   let axis_y = d3.axisLeft(scales[plot_info.y]);
