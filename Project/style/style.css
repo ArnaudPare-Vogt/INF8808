@@ -81,3 +81,8 @@
 .graph-line {
   fill: none;
 }
+
+.graph-selection-line {
+  fill: none;
+  stroke-dasharray: 5, 5;
+}

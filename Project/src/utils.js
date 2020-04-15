@@ -37,7 +37,7 @@ function lat_lon_distance_to_meters(lat_1, lat_2, lon_1, lon_2) {
 
 // From a later version of d3-array
 // https://github.com/d3/d3-array/blob/master/src/minIndex.js
-Array.prototype.minIndex = function(valueof) {
+Array.prototype.min_index = function(valueof) {
   let values = this;
   let min;
   let minIndex = -1;
@@ -67,7 +67,7 @@ Array.prototype.minIndex = function(valueof) {
 
 // From a later version of d3-array
 // https://github.com/d3/d3-array/blob/master/src/maxIndex.js
-Array.prototype.maxIndex = function(valueof) {
+Array.prototype.max_index = function(valueof) {
   let values = this;
   let max;
   let maxIndex = -1;

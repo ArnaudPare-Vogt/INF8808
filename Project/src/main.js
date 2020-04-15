@@ -378,6 +378,29 @@ async function generate_path_line_chart(example_flight_file) {
     .attr("d", accel_line)
     .attr("stroke", "black")
     .classed("graph-line", true);
+
+  currently_selected_datum.subscribe({
+    next: (selected_datum) => {
+      if (!selected_datum) return;
+      let acceleration_datum = acceleration_data[
+        acceleration_data.min_index((d) => Math.abs(d.timestamp - selected_datum.timestamp))
+      ];
+      g.selectAll("line.graph-selection-line")
+        .data([acceleration_datum])
+        .join(
+          enter => enter.append("line")
+            .classed("graph-selection-line", true)
+            .attr("fill", "none")
+            .attr("stroke", "black"),
+          update => update,
+          exit => exit.remove()
+        )
+        .attr("x1", d => scale_x(d.timestamp))
+        .attr("x2", d => scale_x(d.timestamp))
+        .attr("y1", d => scale_y.range()[0])
+        .attr("y2", d => scale_y.range()[1]);
+    }
+  })
 }
 
 
