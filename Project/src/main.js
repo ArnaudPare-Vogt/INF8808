@@ -81,8 +81,12 @@ function remove_hover_circle(g) {
 
 
 async function generate_2d_plot(data_promise, plot_info) {
+  //TODO: Add resize when the window changes
+  //TODO: Add axis color
   let svg = d3.select("#" + plot_info.id)
-    .style("background-color", plot_info.color);
+    // .style("background-color", plot_info.color) // TODO: Maybe uncomment?
+    .style("background-color", "#f7f7f7")
+    .style("border", "black solid");
 
   let svg_size = {
     width: svg.node().clientWidth,
@@ -124,12 +128,14 @@ async function generate_2d_plot(data_promise, plot_info) {
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(" + padding.left + "," + (svg_size.height - padding.bottom) + ")")
+    .attr("stroke", plot_info.x_color)
     .call(axis_x);
 
   svg.append("g")
     .classed("axis", true)
     .classed("y", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
+    .attr("stroke", plot_info.y_color)
     .call(axis_y);
 
   let g = svg.append("g")
@@ -183,8 +189,11 @@ async function generate_2d_plot(data_promise, plot_info) {
 
 
 async function generate_3d_plot(data_promise) {
+  //TODO: Add resize when the window changes
+  //TODO: Add zoom?
   let svg = d3.select("#path-view-3d")
-    .style("background-color", "lightblue");
+    .style("background-color", "#f7f7f7")
+    .style("border", "black solid");
 
   let svg_size = {
     width: svg.node().clientWidth,
@@ -270,7 +279,7 @@ async function generate_3d_plot(data_promise) {
           .attr("fill", "yellow")
           .attr("stroke", "black")
           .classed("ignore-mouse-events", true)
-          .attr("r", 2),
+          .attr("r", 4),
         update => update,
         exit => exit.remove()
       )
@@ -448,19 +457,25 @@ generate_2d_plot(vehicle_global_position_promise, {
   id: "path-view-top",
   color: "lightgreen",
   x: "lon",
-  y: "lat"
+  y: "lat",
+  x_color: "blue",
+  y_color: "red"
 });
 generate_2d_plot(vehicle_global_position_promise, {
   id: "path-view-front",
   color: "rgb(214, 139, 214)",
   x: "lon",
-  y: "alt"
+  y: "alt",
+  x_color: "red",
+  y_color: "limegreen"
 });
 generate_2d_plot(vehicle_global_position_promise, {
   id: "path-view-left",
   color: "pink",
   x: "lat",
-  y: "alt"
+  y: "alt",
+  x_color: "blue",
+  y_color: "limegreen"
 });
 generate_3d_plot(vehicle_global_position_promise);
 setup_selected_point_info(currently_selected_datum);
