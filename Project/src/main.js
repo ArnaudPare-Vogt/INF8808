@@ -7,6 +7,10 @@ let currently_selected_datum = new rxjs.BehaviorSubject(undefined);
 
 
 
+// Define the tooltip_div for the tooltip
+var tooltip_div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
 
 /**
  * Update the status of a hover circle over a graph
@@ -20,12 +24,18 @@ function update_hover_circle(g, points) {
   g.selectAll("circle.hover")
     .data([closest_datum])
     .join(
-      enter => enter.append("circle")
+      function (enter) {
+        var result = enter.append("circle")
         .classed("hover", true)
         .classed("ignore-mouse-events", true)
         .attr("fill", "grey")
         .attr("stroke", "grey")
-        .attr("r", 2),
+        .attr("r", 4);
+
+        update_hover_tooltip(g, closest_datum);
+        
+        return result;
+      },
       update => update,
       exit => exit.remove()
     )
@@ -33,9 +43,28 @@ function update_hover_circle(g, points) {
     .attr("cy", points.y());
 }
 
+function update_hover_tooltip(g, datapoint) {
+  //TODO: Actually make Y the altitude
+  //TODO: Calc the correct XYZ depending on the start point (which is the origin of the viz)
 
+  // Round the numbers to 2 decimals
+  let x = Math.round((datapoint.lon + Number.EPSILON) * 100) / 100;
+  let y = Math.round((datapoint.lat + Number.EPSILON) * 100) / 100;
+  let z = Math.round((datapoint.alt + Number.EPSILON) * 100) / 100;
 
+  tooltip_div.style("opacity", .9);
+  tooltip_div.html(`<table>
+  <tr><td>Pos:</td><td>(${x}, ${y}, ${z})</td></tr>
+  <tr><td>Acc:</td><td>(xx.xx, yy.yy, zz.zz)</td></tr>
+  <tr><td>Rot:</td><td>(xx.xx, yy.yy, zz.zz)</td></tr>
+  </table>`)
+    .style("left", (d3.event.pageX) + "px")
+    .style("top", (d3.event.pageY - 28) + "px");
+} 
 
+function remove_hover_tooltip(g) {
+  tooltip_div.style("opacity", 0);
+}
 
 /**
  * Removes the hover circle over a graph
@@ -44,6 +73,7 @@ function update_hover_circle(g, points) {
 function remove_hover_circle(g) {
   g.selectAll("circle.hover")
     .remove();
+  remove_hover_tooltip(g)
 }
 
 
@@ -138,7 +168,7 @@ async function generate_2d_plot(data_promise, plot_info) {
             .attr("fill", "yellow")
             .attr("stroke", "black")
             .classed("ignore-mouse-events", true)
-            .attr("r", 2),
+            .attr("r", 4),
           update => update,
           exit => exit.remove()
         )
