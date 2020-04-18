@@ -29,6 +29,42 @@ div.tooltip {
   pointer-events: none;			
 }
 
+.axisRed line{
+  stroke: red;
+}
+
+.axisRed path{
+  stroke: red;
+}
+
+.axisRed text{
+  fill: red;
+}
+
+.axisGreen line{
+  stroke: limegreen;
+}
+
+.axisGreen path{
+  stroke: limegreen;
+}
+
+.axisGreen text{
+  fill: limegreen;
+}
+
+.axisBlue line{
+  stroke: blue;
+}
+
+.axisBlue path{
+  stroke: blue;
+}
+
+.axisBlue text{
+  fill: blue;
+}
+
 
 
 

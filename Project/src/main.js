@@ -76,9 +76,29 @@ function remove_hover_circle(g) {
   remove_hover_tooltip(g)
 }
 
+/** Definition of Arrowhead (used in the axis) */
+function defineMarker(svg) {
+  let defs = svg.append("defs");
+  defs.append("marker")
+    .attr("id", "arrowhead_h")
+    .attr("refX", 2)
+    .attr("refY", 12)
+    .attr("markerWidth", 26)
+    .attr("markerHeight", 18)
+    .attr("orient", "0")
+    .append("path")
+    .attr("d", "M2,2 L2,13 L8,7 L2,2");
 
-
-
+  defs.append("marker")
+    .attr("id", "arrowhead_v")
+    .attr("refX", 3)
+    .attr("refY", 2)
+    .attr("markerWidth", 26)
+    .attr("markerHeight", 18)
+    .attr("orient", "-90")
+    .append("path")
+    .attr("d", "M2,2 L2,13 L8,7 L2,2");
+}
 
 async function generate_2d_plot(data_promise, plot_info) {
   //TODO: Add resize when the window changes
@@ -99,6 +119,8 @@ async function generate_2d_plot(data_promise, plot_info) {
     top: 10,
     bottom: 20,
   }
+
+  defineMarker(svg);
 
   let data = await data_promise;
 
@@ -124,19 +146,23 @@ async function generate_2d_plot(data_promise, plot_info) {
     .y(flight_path.y());
   points.addAll(data);
 
-  svg.append("g")
+  var xa = svg.append("g")
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(" + padding.left + "," + (svg_size.height - padding.bottom) + ")")
-    .attr("stroke", plot_info.x_color)
+    .attr("class", plot_info.x_axis_class)
     .call(axis_x);
+  
+  xa.select("path").attr("marker-end", "url(#arrowhead_h)");
 
-  svg.append("g")
+  let ya = svg.append("g")
     .classed("axis", true)
     .classed("y", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .attr("stroke", plot_info.y_color)
+    .attr("class", plot_info.y_axis_class)
     .call(axis_y);
+  
+  ya.select("path").attr("marker-end", "url(#arrowhead_v)");
 
   let g = svg.append("g")
     .classed("path-transform", true)
@@ -458,24 +484,24 @@ generate_2d_plot(vehicle_global_position_promise, {
   color: "lightgreen",
   x: "lon",
   y: "lat",
-  x_color: "blue",
-  y_color: "red"
+  x_axis_class: "axisBlue",
+  y_axis_class: "axisRed"
 });
 generate_2d_plot(vehicle_global_position_promise, {
   id: "path-view-front",
   color: "rgb(214, 139, 214)",
   x: "lon",
   y: "alt",
-  x_color: "red",
-  y_color: "limegreen"
+  x_axis_class: "axisRed",
+  y_axis_class: "axisGreen"
 });
 generate_2d_plot(vehicle_global_position_promise, {
   id: "path-view-left",
   color: "pink",
   x: "lat",
   y: "alt",
-  x_color: "blue",
-  y_color: "limegreen"
+  x_axis_class: "axisBlue",
+  y_axis_class: "axisGreen"
 });
 generate_3d_plot(vehicle_global_position_promise);
 setup_selected_point_info(currently_selected_datum);
