@@ -156,3 +156,42 @@ div.tooltip {
   padding: 0px;
   white-space: pre;
 }
+
+
+
+
+/** Tabs (from https://www.w3schools.com/howto/howto_js_tabs.asp) */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+.tab .tablink {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+/* Change background color of buttons on hover */
+.tab .tablink:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab .tablink.tabselected {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+.tabcontent:not(.tabselected) {
+  display: none;
+}
