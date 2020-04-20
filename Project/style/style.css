@@ -29,39 +29,51 @@ div.tooltip {
   pointer-events: none;			
 }
 
-.axisRed line{
+.axis.red line{
   stroke: red;
 }
 
-.axisRed path{
+.axis.red path{
   stroke: red;
 }
 
-.axisRed text{
+.axis.red text{
   fill: red;
 }
 
-.axisGreen line{
+.axis-cap.red {
+  fill: red;
+}
+
+.axis.green line{
   stroke: limegreen;
 }
 
-.axisGreen path{
+.axis.green path{
   stroke: limegreen;
 }
 
-.axisGreen text{
+.axis.green text{
   fill: limegreen;
 }
 
-.axisBlue line{
+.axis-cap.green {
+  fill: limegreen;
+}
+
+.axis.blue line{
   stroke: blue;
 }
 
-.axisBlue path{
+.axis.blue path{
   stroke: blue;
 }
 
-.axisBlue text{
+.axis.blue text{
+  fill: blue;
+}
+
+.axis-cap.blue {
   fill: blue;
 }
 

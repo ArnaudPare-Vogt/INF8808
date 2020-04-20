@@ -94,25 +94,29 @@ function remove_hover_circle(g) {
 
 
 /** Definition of Arrowhead (used in the axis) */
-function defineMarker(svg) {
+function defineMarker(svg, plot_info, id_x, id_y) {
   let defs = svg.append("defs");
   defs.append("marker")
-    .attr("id", "arrowhead_h")
+    .attr("id", id_x)
     .attr("refX", 2)
     .attr("refY", 12)
     .attr("markerWidth", 26)
     .attr("markerHeight", 18)
     .attr("orient", "0")
+    .classed(plot_info.x_axis_class, true)
+    .classed("axis-cap", true)
     .append("path")
     .attr("d", "M2,2 L2,13 L8,7 L2,2");
 
   defs.append("marker")
-    .attr("id", "arrowhead_v")
+    .attr("id", id_y)
     .attr("refX", 3)
     .attr("refY", 2)
     .attr("markerWidth", 26)
     .attr("markerHeight", 18)
     .attr("orient", "-90")
+    .classed(plot_info.y_axis_class, true)
+    .classed("axis-cap", true)
     .append("path")
     .attr("d", "M2,2 L2,13 L8,7 L2,2");
 }
@@ -141,7 +145,9 @@ async function generate_2d_plot(all_data, plot_info, selection) {
     bottom: 20,
   }
 
-  defineMarker(svg);
+  let arrowhead_x_id = plot_info.id + "-arrowhead-h";
+  let arrowhead_y_id = plot_info.id + "-arrowhead-v";
+  defineMarker(svg, plot_info, arrowhead_x_id, arrowhead_y_id);
 
   let data = all_data.vehicle_global_position_0;
 
@@ -171,19 +177,19 @@ async function generate_2d_plot(all_data, plot_info, selection) {
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(" + padding.left + "," + (svg_size.height - padding.bottom) + ")")
-    .attr("class", plot_info.x_axis_class)
+    .classed(plot_info.x_axis_class, true)
     .call(axis_x);
   
-  xa.select("path").attr("marker-end", "url(#arrowhead_h)");
+  xa.select("path").attr("marker-end", "url(#" + arrowhead_x_id + ")");
 
   let ya = svg.append("g")
     .classed("axis", true)
     .classed("y", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
-    .attr("class", plot_info.y_axis_class)
+    .classed(plot_info.y_axis_class, true)
     .call(axis_y);
   
-  ya.select("path").attr("marker-end", "url(#arrowhead_v)");
+  ya.select("path").attr("marker-end", "url(#" + arrowhead_y_id + ")");
 
   let g = svg.append("g")
     .classed("path-transform", true)
@@ -528,24 +534,24 @@ example_flight_file.retreive_all().then((all_data) => {
     color: "lightgreen",
     x: "lon",
     y: "lat",
-    x_axis_class: "axisBlue",
-    y_axis_class: "axisRed"
+    x_axis_class: "blue",
+    y_axis_class: "red"
   }, selection);
   generate_2d_plot(all_data, {
     id: "path-view-front",
     color: "rgb(214, 139, 214)",
     x: "lon",
     y: "alt",
-    x_axis_class: "axisRed",
-    y_axis_class: "axisGreen"
+    x_axis_class: "red",
+    y_axis_class: "green"
   }, selection);
   generate_2d_plot(all_data, {
     id: "path-view-left",
     color: "pink",
     x: "lat",
     y: "alt",
-    x_axis_class: "axisBlue",
-    y_axis_class: "axisGreen"
+    x_axis_class: "blue",
+    y_axis_class: "green"
   }, selection);
   generate_3d_plot(all_data, selection);
   setup_selected_point_info(selection);
