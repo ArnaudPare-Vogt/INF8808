@@ -2,6 +2,14 @@
 var tooltip_div = d3.select("body").append("div")	
     .attr("class", "tooltip")				
     .style("opacity", 0);
+/** format allows formatting numbers correctly */
+var format = d3.formatLocale({
+  decimal: ".",
+  thousands: " ",
+  grouping: [3],
+  currency: ["", "CAD"],
+  nan: "?"
+});
 
 
 
@@ -44,13 +52,14 @@ function update_hover_circle(g, points) {
 
 function update_hover_tooltip(g, datapoint) {
   // Round the numbers to 2 decimals
-  let x = Math.round((datapoint.enu.e + Number.EPSILON) * 100) / 100;
-  let y = Math.round((datapoint.enu.u + Number.EPSILON) * 100) / 100;
-  let z = Math.round((datapoint.enu.n + Number.EPSILON) * 100) / 100;
+  let fmt = format.format(" ,.2f");
+  let x = datapoint.enu.e;
+  let y = datapoint.enu.u;
+  let z = datapoint.enu.n;
 
   tooltip_div.style("opacity", .9);
   tooltip_div.html(`<table>
-  <tr><td>Pos:</td><td>(${x}, ${y}, ${z})</td></tr>
+  <tr><td>Pos:</td><td>(${fmt(x)}, ${fmt(y)}, ${fmt(z)})</td></tr>
   <tr><td>Acc:</td><td>(xx.xx, yy.yy, zz.zz)</td></tr>
   <tr><td>Rot:</td><td>(xx.xx, yy.yy, zz.zz)</td></tr>
   </table>`)
@@ -387,20 +396,25 @@ async function generate_3d_plot(all_data, selection) {
 
 
 function setup_selected_point_info(selection) {
-  selection.subscribe_to_selected_datum(["vehicle_global_position_0"], {
-    next: (d) => {
-      if (!d) {
-        d = [{
-          lon: "?",
-          lat: "?",
-          alt: "?"
-        }];
+  let pos_fmt = format.format(" ,.4f");
+  let acc_fmt = format.format(" ,.4f");
+  selection.subscribe_to_selected_datum(
+    ["vehicle_global_position_0", "sensor_accel_0"],
+    {
+      next: (d) => {
+        if (!d) {
+          d = [
+            { lon: "?", lat: "?", alt: "?" },
+            { x: "?", y: "?", z: "?" }];
+        }
+        d3.selectAll(".pos_x").text(pos_fmt(d[0].lon));
+        d3.selectAll(".pos_y").text(pos_fmt(d[0].alt));
+        d3.selectAll(".pos_z").text(pos_fmt(d[0].lat));
+        d3.selectAll(".acc_x").text(acc_fmt(d[1].x));
+        d3.selectAll(".acc_y").text(acc_fmt(d[1].y));
+        d3.selectAll(".acc_z").text(acc_fmt(d[1].z));
       }
-      d3.selectAll(".pos_x").text(d[0].lon);
-      d3.selectAll(".pos_y").text(d[0].lat);
-      d3.selectAll(".pos_z").text(d[0].alt);
-    }
-  })
+    })
 }
 
 
