@@ -443,6 +443,23 @@ async function generate_path_line_chart(example_flight_file) {
     .attr("d", accel_line)
     .attr("stroke", "black")
     .classed("graph-line", true);
+  
+  g.append("rect")
+    .attr("width", svg_size.width - padding.left - padding.right)
+    .attr("height", svg_size.height - padding.top - padding.bottom)
+    .attr("fill", "none")
+    .style("pointer-events", "fill")
+    .on("click", async () => {
+      let coords = d3.clientPoint(g.node(), d3.event);
+      let clicked_date = scale_x.invert(coords[0]);
+      console.log("clicked time [" + clicked_date + "]");
+      // TODO: Optimize this shit
+      let position_data = await example_flight_file.retreive_message("vehicle_global_position_0");
+      let position_datum = position_data[
+        position_data.min_index((d) => Math.abs(d.timestamp - clicked_date))
+      ];
+      currently_selected_datum.next(position_datum);
+    });
 
   currently_selected_datum.subscribe({
     next: (selected_datum) => {
