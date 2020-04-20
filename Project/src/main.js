@@ -348,10 +348,14 @@ async function generate_3d_plot(all_data, selection) {
     axis_projection.rotateX(phi);
     axis_projection.rotateY(theta);
 
+    let launchpoint = data[0];
     let axis_data = [
-      [[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],// x
-      [[0.0, -1.0, 0.0], [0.0, 1.0, 0.0]],// y
-      [[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]] // z
+      [[-1.0, scales[2](launchpoint.alt), scales[1](launchpoint.lat)],
+       [ 1.0, scales[2](launchpoint.alt), scales[1](launchpoint.lat)]],// x
+      [[scales[0](launchpoint.lon), -1.0, scales[1](launchpoint.lat)],
+       [scales[0](launchpoint.lon), 1.0, scales[1](launchpoint.lat)]],// y
+      [[scales[0](launchpoint.lon), scales[2](launchpoint.alt), -1.0],
+       [scales[0](launchpoint.lon), scales[2](launchpoint.alt), 1.0]] // z
     ];
     let axis_color = ["red", "green", "blue"];
     let projected_axis_data = axis_projection(axis_data);
