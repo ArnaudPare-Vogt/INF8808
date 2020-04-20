@@ -1,16 +1,11 @@
-/**
- * The currently selected datum. Will contain a vehicle
- * global position message.
- */
-let currently_selected_datum = new rxjs.BehaviorSubject(undefined);
-
-
-
-
 // Define the tooltip_div for the tooltip
 var tooltip_div = d3.select("body").append("div")	
     .attr("class", "tooltip")				
     .style("opacity", 0);
+
+
+
+
 
 /**
  * Update the status of a hover circle over a graph
@@ -43,6 +38,10 @@ function update_hover_circle(g, points) {
     .attr("cy", points.y());
 }
 
+
+
+
+
 function update_hover_tooltip(g, datapoint) {
   //TODO: Actually make Y the altitude
   //TODO: Calc the correct XYZ depending on the start point (which is the origin of the viz)
@@ -62,9 +61,17 @@ function update_hover_tooltip(g, datapoint) {
     .style("top", (d3.event.pageY - 28) + "px");
 } 
 
+
+
+
+
 function remove_hover_tooltip(g) {
   tooltip_div.style("opacity", 0);
 }
+
+
+
+
 
 /**
  * Removes the hover circle over a graph
@@ -75,6 +82,10 @@ function remove_hover_circle(g) {
     .remove();
   remove_hover_tooltip(g)
 }
+
+
+
+
 
 /** Definition of Arrowhead (used in the axis) */
 function defineMarker(svg) {
@@ -100,7 +111,11 @@ function defineMarker(svg) {
     .attr("d", "M2,2 L2,13 L8,7 L2,2");
 }
 
-async function generate_2d_plot(data_promise, plot_info) {
+
+
+
+
+async function generate_2d_plot(data_promise, plot_info, selection) {
   //TODO: Add resize when the window changes
   //TODO: Add axis color
   let svg = d3.select("#" + plot_info.id)
@@ -184,16 +199,17 @@ async function generate_2d_plot(data_promise, plot_info) {
       let coords = d3.clientPoint(g.node(), d3.event);
       let closest_datum = points.find(coords[0], coords[1]);
 
-      currently_selected_datum.next(closest_datum);
+      selection.next_selected_datum(closest_datum.timestamp);
     })
     .on("mousemove", () => update_hover_circle(g, points))
     .on("mouseleave", () => remove_hover_circle(g));
 
-  currently_selected_datum.subscribe({
+  selection.subscribe_to_selected_datum(["vehicle_global_position_0"], {
     next: (datum) => {
       if (!datum) return;
+      pos_datum = datum[0];
       g.selectAll("circle.click")
-        .data([{x: flight_path.x()(datum), y: flight_path.y()(datum)}])
+        .data([pos_datum])
         .join(
           enter => enter.append("circle")
             .classed("click", true)
@@ -204,8 +220,8 @@ async function generate_2d_plot(data_promise, plot_info) {
           update => update,
           exit => exit.remove()
         )
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
+        .attr("cx", flight_path.x())
+        .attr("cy", flight_path.y());
     }
   })
 }
@@ -214,7 +230,7 @@ async function generate_2d_plot(data_promise, plot_info) {
 
 
 
-async function generate_3d_plot(data_promise) {
+async function generate_3d_plot(data_promise, selection) {
   //TODO: Add resize when the window changes
   //TODO: Add zoom?
   let svg = d3.select("#path-view-3d")
@@ -292,13 +308,13 @@ async function generate_3d_plot(data_promise) {
     .on("click", () => {
       let coords = d3.clientPoint(g.node(), d3.event);
       let closest_datum = points.find(coords[0], coords[1]);
-      currently_selected_datum.next(closest_datum);
+      selection.next_selected_datum(closest_datum.timestamp);
     });
 
   function update_selection_circle(datum) {
     if (!datum) return;
     g.selectAll("circle.click")
-      .data(flight_path([[datum]])[0])
+      .data(flight_path([[datum[0]]])[0])
       .join(
         enter => enter.append("circle")
           .classed("click", true)
@@ -348,7 +364,10 @@ async function generate_3d_plot(data_promise) {
       .attr("d", flight_path.draw);
     
     // If we have a selection circle, we need to uptate its position
-    update_selection_circle(currently_selected_datum.getValue());
+    let current_datum = selection.get_selected_datum(["vehicle_global_position_0"]);
+    if (current_datum) {
+      update_selection_circle(current_datum);
+    }
   }
   update_3d();
 
@@ -361,7 +380,7 @@ async function generate_3d_plot(data_promise) {
     });
   svg.call(drag);
 
-  currently_selected_datum.subscribe({
+  selection.subscribe_to_selected_datum(["vehicle_global_position_0"], {
     next: update_selection_circle
   });
 }
@@ -370,19 +389,19 @@ async function generate_3d_plot(data_promise) {
 
 
 
-function setup_selected_point_info(selected_datum_subject) {
-  selected_datum_subject.subscribe({
+function setup_selected_point_info(selection) {
+  selection.subscribe_to_selected_datum(["vehicle_global_position_0"], {
     next: (d) => {
       if (!d) {
-        d = {
+        d = [{
           lon: "?",
           lat: "?",
           alt: "?"
-        };
+        }];
       }
-      d3.selectAll(".pos_x").text(d.lon);
-      d3.selectAll(".pos_y").text(d.lat);
-      d3.selectAll(".pos_z").text(d.alt);
+      d3.selectAll(".pos_x").text(d[0].lon);
+      d3.selectAll(".pos_y").text(d[0].lat);
+      d3.selectAll(".pos_z").text(d[0].alt);
     }
   })
 }
@@ -390,7 +409,7 @@ function setup_selected_point_info(selected_datum_subject) {
 
 
 
-async function generate_path_line_chart(example_flight_file) {
+async function generate_path_line_chart(example_flight_file, selection) {
   let acceleration_data_promise = example_flight_file.retreive_message("sensor_accel_0");
 
   let svg = d3.select("#path-line-chart");
@@ -452,23 +471,14 @@ async function generate_path_line_chart(example_flight_file) {
     .on("click", async () => {
       let coords = d3.clientPoint(g.node(), d3.event);
       let clicked_date = scale_x.invert(coords[0]);
-      console.log("clicked time [" + clicked_date + "]");
-      // TODO: Optimize this shit
-      let position_data = await example_flight_file.retreive_message("vehicle_global_position_0");
-      let position_datum = position_data[
-        position_data.min_index((d) => Math.abs(d.timestamp - clicked_date))
-      ];
-      currently_selected_datum.next(position_datum);
+      selection.next_selected_datum(clicked_date);
     });
 
-  currently_selected_datum.subscribe({
+  selection.subscribe_to_selected_datum(["sensor_accel_0"], {
     next: (selected_datum) => {
       if (!selected_datum) return;
-      let acceleration_datum = acceleration_data[
-        acceleration_data.min_index((d) => Math.abs(d.timestamp - selected_datum.timestamp))
-      ];
       g.selectAll("line.graph-selection-line")
-        .data([acceleration_datum])
+        .data([selected_datum[0]])
         .join(
           enter => enter.append("line")
             .classed("graph-selection-line", true)
@@ -493,33 +503,36 @@ d3.select(".todo")
   .style("color", "red");
 
 let example_flight_file = new ULogFile("example_flight");
-
-let vehicle_global_position_promise = example_flight_file.retreive_message("vehicle_global_position_0");
-// TODO: keep aspect ratio on graphs
-generate_2d_plot(vehicle_global_position_promise, {
-  id: "path-view-top",
-  color: "lightgreen",
-  x: "lon",
-  y: "lat",
-  x_axis_class: "axisBlue",
-  y_axis_class: "axisRed"
+example_flight_file.retreive_all().then((all_data) => {
+  let selection = new Selection(all_data);
+  
+  let vehicle_global_position_promise = example_flight_file.retreive_message("vehicle_global_position_0");
+  // TODO: keep aspect ratio on graphs
+  generate_2d_plot(vehicle_global_position_promise, {
+    id: "path-view-top",
+    color: "lightgreen",
+    x: "lon",
+    y: "lat",
+    x_axis_class: "axisBlue",
+    y_axis_class: "axisRed"
+  }, selection);
+  generate_2d_plot(vehicle_global_position_promise, {
+    id: "path-view-front",
+    color: "rgb(214, 139, 214)",
+    x: "lon",
+    y: "alt",
+    x_axis_class: "axisRed",
+    y_axis_class: "axisGreen"
+  }, selection);
+  generate_2d_plot(vehicle_global_position_promise, {
+    id: "path-view-left",
+    color: "pink",
+    x: "lat",
+    y: "alt",
+    x_axis_class: "axisBlue",
+    y_axis_class: "axisGreen"
+  }, selection);
+  generate_3d_plot(vehicle_global_position_promise, selection);
+  setup_selected_point_info(selection);
+  generate_path_line_chart(example_flight_file, selection);
 });
-generate_2d_plot(vehicle_global_position_promise, {
-  id: "path-view-front",
-  color: "rgb(214, 139, 214)",
-  x: "lon",
-  y: "alt",
-  x_axis_class: "axisRed",
-  y_axis_class: "axisGreen"
-});
-generate_2d_plot(vehicle_global_position_promise, {
-  id: "path-view-left",
-  color: "pink",
-  x: "lat",
-  y: "alt",
-  x_axis_class: "axisBlue",
-  y_axis_class: "axisGreen"
-});
-generate_3d_plot(vehicle_global_position_promise);
-setup_selected_point_info(currently_selected_datum);
-generate_path_line_chart(example_flight_file);

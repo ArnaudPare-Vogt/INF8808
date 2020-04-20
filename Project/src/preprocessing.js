@@ -272,5 +272,23 @@ class ULogFile {
 
     return data;
   }
+
+  /**
+   * Gets all messages.
+   */
+  async retreive_all() {
+    let promises = Object.keys(message_preprocessors)
+      .map((message_name) => {
+        return {
+          msg: message_name,
+          promise: this.retreive_message(message_name)
+        };
+      });
+    let result = {};
+    for (let promise of promises) {
+      result[promise.msg] = await promise.promise;
+    }
+    return result;
+  }
 };
 
