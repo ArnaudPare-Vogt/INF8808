@@ -105,3 +105,15 @@ Array.prototype.max_index = function(valueof) {
 function range(max) {
   return [...Array(max).keys()];
 }
+
+
+
+
+/**
+ * Converts an angle in radians to an angle in degrees
+ * @param {number} rad The angle in radians
+ * @returns {number} The angle in degrees
+ */
+function rad_to_deg(rad) {
+  return rad / Math.PI * 180;
+}

@@ -805,6 +805,41 @@
         0, 0, 0, 1];
     },
     /**
+     * Transforms a quaternion to euler angles. The resulting angles are in radians.
+     * 
+     * @param {string} order The order of the angles. Defaults to ZYX.
+     * @returns {Array} [roll, pitch, yaw]
+     */
+    'toEuler': function (order) {
+      // See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Quaternion_to_Euler_Angles_Conversion
+
+      // Other ordering not supported
+      if (order && order !== 'ZYX') return null;
+      var w = this['w'];
+      var x = this['x'];
+      var y = this['y'];
+      var z = this['z'];
+
+      var sinr_cosp = 2 * (w * x + y * z);
+      var cosr_cosp = 1 - 2 * (x * x + y * y);
+      var roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+      var sinp = 2 * (w * y - z * x);
+      var pitch;
+      if (Math.abs(sinp) >= 1) {
+        pitch = Math.sign(sinp) * Math.PI / 2;
+      }
+      else {
+        pitch = Math.asin(sinp);
+      }
+
+      var siny_cosp = 2 * (w * z + x * y);
+      var cosy_cosp = 1 - 2 * (y * y + z * z);
+      var yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+      return [roll, pitch, yaw];
+    },
+    /**
      * Clones the actual object
      *
      * @returns {Quaternion}
