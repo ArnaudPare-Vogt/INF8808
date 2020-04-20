@@ -98,27 +98,27 @@ function defineMarker(svg, plot_info, id_x, id_y) {
   let defs = svg.append("defs");
   defs.append("marker")
     .attr("id", id_x)
-    .attr("refX", 2)
-    .attr("refY", 12)
+    .attr("refX", 0)
+    .attr("refY", 5)
     .attr("markerWidth", 26)
     .attr("markerHeight", 18)
     .attr("orient", "0")
     .classed(plot_info.x_axis_class, true)
     .classed("axis-cap", true)
     .append("path")
-    .attr("d", "M2,2 L2,13 L8,7 L2,2");
+    .attr("d", "M0,0 L0,10 L6,5 L0,0");
 
   defs.append("marker")
     .attr("id", id_y)
-    .attr("refX", 3)
-    .attr("refY", 2)
+    .attr("refX", 0)
+    .attr("refY", 5)
     .attr("markerWidth", 26)
     .attr("markerHeight", 18)
     .attr("orient", "-90")
     .classed(plot_info.y_axis_class, true)
     .classed("axis-cap", true)
     .append("path")
-    .attr("d", "M2,2 L2,13 L8,7 L2,2");
+    .attr("d", "M0,0 L0,10 L6,5 L0,0");
 }
 
 
@@ -162,8 +162,10 @@ async function generate_2d_plot(all_data, plot_info, selection) {
   scales[plot_info.x].range([0, svg_size.width - padding.left - padding.right]);
   scales[plot_info.y].range([svg_size.height - padding.top - padding.bottom, 0]);
 
-  let axis_x = d3.axisBottom(scales[plot_info.x]);
-  let axis_y = d3.axisLeft(scales[plot_info.y]);
+  let axis_x = d3.axisBottom(scales[plot_info.x])
+    .tickSizeOuter(0);
+  let axis_y = d3.axisLeft(scales[plot_info.y])
+    .tickSizeOuter(0);
   let flight_path = d3.line()
     .x(d => scales[plot_info.x](d[plot_info.x]))
     .y(d => scales[plot_info.y](d[plot_info.y]));
