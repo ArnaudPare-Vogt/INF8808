@@ -398,14 +398,15 @@ async function generate_3d_plot(all_data, selection) {
 function setup_selected_point_info(selection) {
   let fmt = format.format(" ,.4f");
   selection.subscribe_to_selected_datum(
-    ["vehicle_global_position_0", "sensor_accel_0", "sensor_mag_0"],
+    ["vehicle_global_position_0", "sensor_accel_0", "sensor_mag_0", "sensor_baro_0"],
     {
       next: (d) => {
         if (!d) {
           d = [
             { lon: "?", lat: "?", alt: "?" },
             { x: "?", y: "?", z: "?" },
-            { x: "?", y: "?", z: "?" }];
+            { x: "?", y: "?", z: "?" },
+            { pressure: "?" }];
         }
         d3.selectAll(".pos_x").text(fmt(d[0].lon));
         d3.selectAll(".pos_y").text(fmt(d[0].alt));
@@ -416,6 +417,7 @@ function setup_selected_point_info(selection) {
         d3.selectAll(".mag_x").text(fmt(d[2].x));
         d3.selectAll(".mag_y").text(fmt(d[2].y));
         d3.selectAll(".mag_z").text(fmt(d[2].z));
+        d3.selectAll(".baro").text("(" + fmt(d[3].pressure) + ")");
       }
     })
 }
