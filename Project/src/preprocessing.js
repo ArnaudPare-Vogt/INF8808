@@ -224,6 +224,31 @@ const message_preprocessors = {
     delete row["output[14]"];
     delete row["output[15]"];
   },
+  
+  "vehicle_attitude_0": (row, parse_timestamp) => {
+    // See https://github.com/PX4/Firmware/blob/master/msg/vehicle_attitude.msg
+    row.q = new Quaternion([
+      parseFloat(row["q[0]"]),
+      parseFloat(row["q[1]"]),
+      parseFloat(row["q[2]"]),
+      parseFloat(row["q[3]"])
+    ]);
+    delete row["q[0]"];
+    delete row["q[1]"];
+    delete row["q[2]"];
+    delete row["q[3]"];
+    row.delta_q_reset = new Quaternion([
+      parseFloat(row["delta_q_reset[0]"]),
+      parseFloat(row["delta_q_reset[1]"]),
+      parseFloat(row["delta_q_reset[2]"]),
+      parseFloat(row["delta_q_reset[3]"])
+    ]);
+    delete row["delta_q_reset[0]"];
+    delete row["delta_q_reset[1]"];
+    delete row["delta_q_reset[2]"];
+    delete row["delta_q_reset[3]"];
+    row.quat_reset_counter = parseInt(row.quat_reset_counter);
+  },
 };
 
 
