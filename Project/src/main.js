@@ -350,8 +350,8 @@ async function generate_3d_plot(all_data, selection) {
 
     let axis_data = [
       [[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],// x
-      [[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]],// y
-      [[0.0, -1.0, 0.0], [0.0, 1.0, 0.0]] // z
+      [[0.0, -1.0, 0.0], [0.0, 1.0, 0.0]],// y
+      [[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]] // z
     ];
     let axis_color = ["red", "green", "blue"];
     let projected_axis_data = axis_projection(axis_data);
@@ -536,8 +536,8 @@ example_flight_file.retreive_all().then((all_data) => {
     color: "lightgreen",
     x: "lon",
     y: "lat",
-    x_axis_class: "blue",
-    y_axis_class: "red"
+    x_axis_class: "red",
+    y_axis_class: "blue"
   }, selection);
   generate_2d_plot(all_data, {
     id: "path-view-front",
