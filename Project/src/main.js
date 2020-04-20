@@ -43,13 +43,10 @@ function update_hover_circle(g, points) {
 
 
 function update_hover_tooltip(g, datapoint) {
-  //TODO: Actually make Y the altitude
-  //TODO: Calc the correct XYZ depending on the start point (which is the origin of the viz)
-
   // Round the numbers to 2 decimals
-  let x = Math.round((datapoint.lon + Number.EPSILON) * 100) / 100;
-  let y = Math.round((datapoint.lat + Number.EPSILON) * 100) / 100;
-  let z = Math.round((datapoint.alt + Number.EPSILON) * 100) / 100;
+  let x = Math.round((datapoint.enu.e + Number.EPSILON) * 100) / 100;
+  let y = Math.round((datapoint.enu.u + Number.EPSILON) * 100) / 100;
+  let z = Math.round((datapoint.enu.n + Number.EPSILON) * 100) / 100;
 
   tooltip_div.style("opacity", .9);
   tooltip_div.html(`<table>
