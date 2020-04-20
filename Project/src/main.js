@@ -115,7 +115,7 @@ function defineMarker(svg) {
 
 
 
-async function generate_2d_plot(data_promise, plot_info, selection) {
+async function generate_2d_plot(all_data, plot_info, selection) {
   //TODO: Add resize when the window changes
   //TODO: Add axis color
   let svg = d3.select("#" + plot_info.id)
@@ -137,7 +137,7 @@ async function generate_2d_plot(data_promise, plot_info, selection) {
 
   defineMarker(svg);
 
-  let data = await data_promise;
+  let data = all_data.vehicle_global_position_0;
 
   let scales = {
     lon: d3.scaleLinear()
@@ -230,7 +230,7 @@ async function generate_2d_plot(data_promise, plot_info, selection) {
 
 
 
-async function generate_3d_plot(data_promise, selection) {
+async function generate_3d_plot(all_data, selection) {
   //TODO: Add resize when the window changes
   //TODO: Add zoom?
   let svg = d3.select("#path-view-3d")
@@ -253,7 +253,7 @@ async function generate_3d_plot(data_promise, selection) {
     (svg_size.width - padding.left - padding.right) / 2,
     (svg_size.height - padding.top - padding.bottom ) / 2];
 
-  let data = await data_promise;
+  let data = all_data.vehicle_global_position_0;
 
   let accessors = [
     row => row.lon,
@@ -506,9 +506,8 @@ let example_flight_file = new ULogFile("example_flight");
 example_flight_file.retreive_all().then((all_data) => {
   let selection = new Selection(all_data);
   
-  let vehicle_global_position_promise = example_flight_file.retreive_message("vehicle_global_position_0");
   // TODO: keep aspect ratio on graphs
-  generate_2d_plot(vehicle_global_position_promise, {
+  generate_2d_plot(all_data, {
     id: "path-view-top",
     color: "lightgreen",
     x: "lon",
@@ -516,7 +515,7 @@ example_flight_file.retreive_all().then((all_data) => {
     x_axis_class: "axisBlue",
     y_axis_class: "axisRed"
   }, selection);
-  generate_2d_plot(vehicle_global_position_promise, {
+  generate_2d_plot(all_data, {
     id: "path-view-front",
     color: "rgb(214, 139, 214)",
     x: "lon",
@@ -524,7 +523,7 @@ example_flight_file.retreive_all().then((all_data) => {
     x_axis_class: "axisRed",
     y_axis_class: "axisGreen"
   }, selection);
-  generate_2d_plot(vehicle_global_position_promise, {
+  generate_2d_plot(all_data, {
     id: "path-view-left",
     color: "pink",
     x: "lat",
@@ -532,7 +531,7 @@ example_flight_file.retreive_all().then((all_data) => {
     x_axis_class: "axisBlue",
     y_axis_class: "axisGreen"
   }, selection);
-  generate_3d_plot(vehicle_global_position_promise, selection);
+  generate_3d_plot(all_data, selection);
   setup_selected_point_info(selection);
   generate_path_line_chart(example_flight_file, selection);
 });
