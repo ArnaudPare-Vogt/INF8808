@@ -303,8 +303,8 @@ async function generate_3d_plot(all_data, selection) {
     .shape("LINE_STRIP")
     .scale(Math.min(svg_size.width, svg_size.height) / 2);
 
-  let theta = 0;
-  let phi = 0;
+  let theta = Math.PI / 4;
+  let phi = Math.PI / 4;
 
   let points; // Our quadtree
   let g = svg.append("g")
