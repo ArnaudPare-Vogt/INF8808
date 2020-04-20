@@ -396,23 +396,26 @@ async function generate_3d_plot(all_data, selection) {
 
 
 function setup_selected_point_info(selection) {
-  let pos_fmt = format.format(" ,.4f");
-  let acc_fmt = format.format(" ,.4f");
+  let fmt = format.format(" ,.4f");
   selection.subscribe_to_selected_datum(
-    ["vehicle_global_position_0", "sensor_accel_0"],
+    ["vehicle_global_position_0", "sensor_accel_0", "sensor_mag_0"],
     {
       next: (d) => {
         if (!d) {
           d = [
             { lon: "?", lat: "?", alt: "?" },
+            { x: "?", y: "?", z: "?" },
             { x: "?", y: "?", z: "?" }];
         }
-        d3.selectAll(".pos_x").text(pos_fmt(d[0].lon));
-        d3.selectAll(".pos_y").text(pos_fmt(d[0].alt));
-        d3.selectAll(".pos_z").text(pos_fmt(d[0].lat));
-        d3.selectAll(".acc_x").text(acc_fmt(d[1].x));
-        d3.selectAll(".acc_y").text(acc_fmt(d[1].y));
-        d3.selectAll(".acc_z").text(acc_fmt(d[1].z));
+        d3.selectAll(".pos_x").text(fmt(d[0].lon));
+        d3.selectAll(".pos_y").text(fmt(d[0].alt));
+        d3.selectAll(".pos_z").text(fmt(d[0].lat));
+        d3.selectAll(".acc_x").text(fmt(d[1].x));
+        d3.selectAll(".acc_y").text(fmt(d[1].y));
+        d3.selectAll(".acc_z").text(fmt(d[1].z));
+        d3.selectAll(".mag_x").text(fmt(d[2].x));
+        d3.selectAll(".mag_y").text(fmt(d[2].y));
+        d3.selectAll(".mag_z").text(fmt(d[2].z));
       }
     })
 }
