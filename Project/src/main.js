@@ -99,26 +99,26 @@ function defineMarker(svg, plot_info, id_x, id_y) {
   defs.append("marker")
     .attr("id", id_x)
     .attr("refX", 0)
-    .attr("refY", 5)
+    .attr("refY", 3)
     .attr("markerWidth", 26)
     .attr("markerHeight", 18)
     .attr("orient", "0")
     .classed(plot_info.x_axis_class, true)
     .classed("axis-cap", true)
     .append("path")
-    .attr("d", "M0,0 L0,10 L6,5 L0,0");
+    .attr("d", "M0,0 L0,6 L6,3 L0,0");
 
   defs.append("marker")
     .attr("id", id_y)
     .attr("refX", 0)
-    .attr("refY", 5)
+    .attr("refY", 3)
     .attr("markerWidth", 26)
     .attr("markerHeight", 18)
     .attr("orient", "-90")
     .classed(plot_info.y_axis_class, true)
     .classed("axis-cap", true)
     .append("path")
-    .attr("d", "M0,0 L0,10 L6,5 L0,0");
+    .attr("d", "M0,0 L0,6 L6,3 L0,0");
 }
 
 
