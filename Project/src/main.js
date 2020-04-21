@@ -503,14 +503,14 @@ async function generate_path_line_chart(all_data, selection) {
     .domain([0, 1])
     .range([svg_size.height - padding.top - padding.bottom, 0]);
   
-  let axis_x = d3.axisBottom(scale_x);
+  let axis_x = (g, x) => g.call(d3.axisBottom(x));
   let axis_y = d3.axisLeft(scale_y);
 
   g.append("g")
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(0," + (svg_size.height - padding.bottom - padding.top) + ")")
-    .call(axis_x);
+    .call(axis_x, scale_x);
   
   g.append("g")
     .classed("axis", true)
@@ -538,7 +538,17 @@ async function generate_path_line_chart(all_data, selection) {
       .attr("visibility", (d, i) => data_is_visible[i]?"visible":"hidden");
   };
   update_lines();
-  
+
+  let zoom = d3.zoom()
+    .scaleExtent([1, 32])
+    .on("zoom", () => {
+      const transform = d3.event.transform;
+      const zx = transform.rescaleX(scale_x).interpolate(d3.interpolateRound);
+      svg.select("g.axis.x").call(axis_x, zx);
+      lines.forEach(line => line.x(d => zx(d.timestamp)));
+      update_lines();
+    });
+
   g.append("rect")
     .attr("width", svg_size.width - padding.left - padding.right)
     .attr("height", svg_size.height - padding.top - padding.bottom)
@@ -548,7 +558,9 @@ async function generate_path_line_chart(all_data, selection) {
       let coords = d3.clientPoint(g.node(), d3.event);
       let clicked_date = scale_x.invert(coords[0]);
       selection.next_selected_datum(clicked_date);
-    });
+    })
+    .call(zoom)
+    .call(zoom.transform, d3.zoomIdentity);
 
   selection.subscribe_to_selected_datum(["sensor_accel_0"], {
     next: (selected_datum) => {
@@ -577,6 +589,7 @@ async function generate_path_line_chart(all_data, selection) {
       update_lines();
     });
 }
+
 
 
 
