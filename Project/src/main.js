@@ -623,7 +623,6 @@ function generate_remote_controller(selection) {
       svg.select("#left-knob")
         .attr("cx", yaw_scale(rc_input.values[3]))
         .attr("cy", thrust_scale(rc_input.values[2]));
-      // TODO: I'm not sure which is roll and wich is pitch
       svg.select("#right-knob")
         .attr("cx", roll_scale(rc_input.values[0]))
         .attr("cy", pitch_scale(rc_input.values[1]));
