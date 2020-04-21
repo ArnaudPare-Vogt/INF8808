@@ -217,6 +217,7 @@ async function generate_2d_plot(data_promise, plot_info) {
 async function generate_3d_plot(data_promise) {
   //TODO: Add resize when the window changes
   //TODO: Add zoom?
+  //TODO: Center axis on (0,0,0)
   let svg = d3.select("#path-view-3d")
     .style("background-color", "#f7f7f7")
     .style("border", "black solid");
@@ -479,6 +480,7 @@ let example_flight_file = new ULogFile("example_flight");
 
 let vehicle_global_position_promise = example_flight_file.retreive_message("vehicle_global_position_0");
 // TODO: keep aspect ratio on graphs
+//TODO: Allign axis
 generate_2d_plot(vehicle_global_position_promise, {
   id: "path-view-top",
   color: "lightgreen",
