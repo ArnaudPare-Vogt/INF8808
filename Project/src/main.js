@@ -495,6 +495,13 @@ async function generate_path_line_chart(all_data, selection) {
 
   let g = svg.append("g")
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+  
+  let clip_path_id = "path-line-chart-clip-path";
+  g.append("clipPath")
+    .attr("id", clip_path_id)
+    .append("rect")
+    .attr("width", svg_size.width - padding.left - padding.right)
+    .attr("height", svg_size.height - padding.top - padding.bottom)
 
   let scale_x = d3.scaleTime()
     .domain(d3.extent(acceleration_data, row => row.timestamp))
@@ -529,7 +536,8 @@ async function generate_path_line_chart(all_data, selection) {
       .data(data)
       .join(
         enter => enter.append("path")
-          .classed("graph-line", true),
+          .classed("graph-line", true)
+          .attr("clip-path", `url(#${clip_path_id})`),
         update => update,
         exit => exit.remove()
       )
@@ -545,7 +553,6 @@ async function generate_path_line_chart(all_data, selection) {
     .translateExtent([[0, 0], [svg_size.width - padding.left - padding.right, 0]])
     .on("zoom", () => {
       const transform = d3.event.transform;
-      console.log(transform);
       const zx = transform.rescaleX(scale_x).interpolate(d3.interpolateRound);
       svg.select("g.axis.x").call(axis_x, zx);
       lines.forEach(line => line.x(d => zx(d.timestamp)));
