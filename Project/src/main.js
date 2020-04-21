@@ -503,21 +503,24 @@ async function generate_path_line_chart(all_data, selection) {
     .attr("width", svg_size.width - padding.left - padding.right)
     .attr("height", svg_size.height - padding.top - padding.bottom)
 
-  let scale_x = d3.scaleTime()
-    .domain(d3.extent(acceleration_data, row => row.timestamp))
-    .range([0, svg_size.width - padding.left - padding.right]);
-  let scale_y = d3.scaleLinear()
-    .domain([0, 1])
-    .range([svg_size.height - padding.top - padding.bottom, 0]);
+  let scale = {
+    x_no_zoom: d3.scaleTime()
+      .domain(d3.extent(acceleration_data, row => row.timestamp))
+      .range([0, svg_size.width - padding.left - padding.right]),
+    y: d3.scaleLinear()
+      .domain([0, 1])
+      .range([svg_size.height - padding.top - padding.bottom, 0])
+  };
+  scale.x = scale.x_no_zoom;
   
   let axis_x = (g, x) => g.call(d3.axisBottom(x));
-  let axis_y = d3.axisLeft(scale_y);
+  let axis_y = d3.axisLeft(scale.y);
 
   g.append("g")
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(0," + (svg_size.height - padding.bottom - padding.top) + ")")
-    .call(axis_x, scale_x);
+    .call(axis_x, scale.x);
   
   g.append("g")
     .classed("axis", true)
@@ -527,8 +530,8 @@ async function generate_path_line_chart(all_data, selection) {
 
   let lines = range(data.length)
     .map(i => d3.line()
-        .x(d => scale_x(d.timestamp))
-        .y(d => scale_y(normalize_scales[i](data_accesors[i](d))))
+        .x(d => scale.x(d.timestamp))
+        .y(d => scale.y(normalize_scales[i](data_accesors[i](d))))
     );
 
   let update_lines = () => {
@@ -546,17 +549,37 @@ async function generate_path_line_chart(all_data, selection) {
       .attr("visibility", (d, i) => data_is_visible[i]?"visible":"hidden");
   };
   update_lines();
+  
+  let update_selection_line = (selected_datum) => {
+    if (!selected_datum) return;
+    g.selectAll("line.graph-selection-line")
+      .data([selected_datum[0]])
+      .join(
+        enter => enter.append("line")
+          .classed("graph-selection-line", true)
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .attr("clip-path", `url(#${clip_path_id})`),
+        update => update,
+        exit => exit.remove()
+      )
+      .attr("x1", d => scale.x(d.timestamp))
+      .attr("x2", d => scale.x(d.timestamp))
+      .attr("y1", d => scale.y.range()[0])
+      .attr("y2", d => scale.y.range()[1]);
+  };
 
   let zoom = d3.zoom()
     .scaleExtent([1, 32])
     .extent([[0, 0], [svg_size.width - padding.left - padding.right, 0]])
     .translateExtent([[0, 0], [svg_size.width - padding.left - padding.right, 0]])
+    .clickDistance(5)
     .on("zoom", () => {
       const transform = d3.event.transform;
-      const zx = transform.rescaleX(scale_x).interpolate(d3.interpolateRound);
-      svg.select("g.axis.x").call(axis_x, zx);
-      lines.forEach(line => line.x(d => zx(d.timestamp)));
+      scale.x = transform.rescaleX(scale.x_no_zoom).interpolate(d3.interpolateRound);
+      svg.select("g.axis.x").call(axis_x, scale.x);
       update_lines();
+      update_selection_line(selection.get_selected_datum(["sensor_accel_0"]));
     });
 
   g.append("rect")
@@ -566,31 +589,15 @@ async function generate_path_line_chart(all_data, selection) {
     .style("pointer-events", "fill")
     .on("click", async () => {
       let coords = d3.clientPoint(g.node(), d3.event);
-      let clicked_date = scale_x.invert(coords[0]);
+      let clicked_date = scale.x.invert(coords[0]);
       selection.next_selected_datum(clicked_date);
     })
     .call(zoom)
     .call(zoom.transform, d3.zoomIdentity);
 
   selection.subscribe_to_selected_datum(["sensor_accel_0"], {
-    next: (selected_datum) => {
-      if (!selected_datum) return;
-      g.selectAll("line.graph-selection-line")
-        .data([selected_datum[0]])
-        .join(
-          enter => enter.append("line")
-            .classed("graph-selection-line", true)
-            .attr("fill", "none")
-            .attr("stroke", "black"),
-          update => update,
-          exit => exit.remove()
-        )
-        .attr("x1", d => scale_x(d.timestamp))
-        .attr("x2", d => scale_x(d.timestamp))
-        .attr("y1", d => scale_y.range()[0])
-        .attr("y2", d => scale_y.range()[1]);
-    }
-  })
+    next: update_selection_line
+  });
 
   // Legend interractivity
   legend_binding.select("input")
