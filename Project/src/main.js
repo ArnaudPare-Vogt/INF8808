@@ -449,6 +449,32 @@ async function generate_path_line_chart(all_data, selection) {
   let data_is_visible = [ true, true, true ];
   let color_scale = d3.scaleOrdinal(d3.schemeCategory10);
   let data_accesors = [ d => d.mag, d => d.mag, d => d.pressure ];
+
+  // Adding legend. Note: We need to add the legend before we get the svg size,
+  // because the legend will push (and shrink) the svg.
+  let populate_legend_label = (div) => {
+    let id = (d, i) => `path-line-chart-legend-${i}`;
+    div.attr("class", (d, i) => "ordinal" + i)
+      .classed("custom-control", true)
+      .classed("custom-checkbox", true);
+    div.append("input")
+      .attr("type", "checkbox")
+      .classed("custom-control-input", true)
+      .attr("id", id)
+      .property("checked", true);
+    div.append("label")
+      .classed("custom-control-label", true)
+      .attr("for", id)
+      .text(d => d);
+  }
+
+  let legend = d3.select("#path-line-chart-legend");
+  let legend_binding = legend.selectAll("div")
+    .data(data_names)
+    .enter()
+    .append("div")
+    .call(populate_legend_label);
+
   // TODO: If there is only one datapoint selected, we don't need to normalise,
   // so we could display the actual scale instead.
   let normalize_scales = range(data.length)
@@ -462,7 +488,7 @@ async function generate_path_line_chart(all_data, selection) {
   
   let padding = {
     left: 50,
-    right: 10,
+    right: 30,
     top: 10,
     bottom: 20,
   }
@@ -544,33 +570,12 @@ async function generate_path_line_chart(all_data, selection) {
     }
   })
 
-  // Generate the legend
-  let populate_legend_label = (div) => {
-    let id = (d, i) => `path-line-chart-legend-${i}`;
-    div.attr("class", (d, i) => "ordinal" + i)
-      .classed("custom-control", true)
-      .classed("custom-checkbox", true);
-    div.append("input")
-      .attr("type", "checkbox")
-      .classed("custom-control-input", true)
-      .attr("id", id)
-      .property("checked", true)
-      .on("change", function (d, i) {
-        data_is_visible[i] = d3.select(this).property("checked");
-        update_lines();
-      });
-    div.append("label")
-      .classed("custom-control-label", true)
-      .attr("for", id)
-      .text(d => d);
-  }
-
-  let legend = d3.select("#path-line-chart-legend");
-  legend.selectAll("div")
-    .data(data_names)
-    .enter()
-    .append("div")
-    .call(populate_legend_label);
+  // Legend interractivity
+  legend_binding.select("input")
+    .on("change", function (d, i) {
+      data_is_visible[i] = d3.select(this).property("checked");
+      update_lines();
+    });
 }
 
 
