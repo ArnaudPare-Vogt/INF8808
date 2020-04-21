@@ -581,6 +581,19 @@ async function generate_path_line_chart(all_data, selection) {
 
 
 
+function generate_remote_controller(selection) {
+  let svg = d3.select("#rc-view");
+  let toggle_position_extent = [191, 194];
+  selection.subscribe_to_selected_datum(["input_rc_0"], {
+    next: (datum) => {
+      //console.log(datum);
+    }
+  });
+}
+
+
+
+
 
 d3.select(".todo")
   .style("color", "red");
@@ -618,4 +631,5 @@ example_flight_file.retreive_all().then((all_data) => {
   generate_3d_plot(all_data, selection);
   setup_selected_point_info(selection);
   generate_path_line_chart(all_data, selection);
+  generate_remote_controller(selection);
 });

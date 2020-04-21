@@ -167,6 +167,7 @@ const message_preprocessors = {
       parseInt(row["values[16]"]),
       parseInt(row["values[17]"])
     ];
+    row.values = row.values.slice(0, row.channel_count);
     delete row["values[0]"];
     delete row["values[1]"];
     delete row["values[2]"];
