@@ -208,7 +208,7 @@ div.tooltip {
   flex-grow: 1;
 }
 #path-line-chart-legend {
-  margin: 1em;
+  margin: 1em 1em 1em 0em;
   display: flex;
   flex-direction: column;
 }

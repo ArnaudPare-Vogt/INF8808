@@ -488,7 +488,7 @@ async function generate_path_line_chart(all_data, selection) {
   
   let padding = {
     left: 50,
-    right: 30,
+    right: 10,
     top: 10,
     bottom: 20,
   }
