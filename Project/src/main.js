@@ -445,7 +445,8 @@ function setup_selected_point_info(selection) {
 async function generate_path_line_chart(all_data, selection) {
   let acceleration_data = all_data.sensor_accel_0;
   let data_names = [ "Acceleration",  "Magnetometer", "Barometer" ];
-  let data = [ all_data.sensor_accel_0,  all_data.sensor_mag_0, all_data.sensor_baro_0];
+  let data = [ all_data.sensor_accel_0, all_data.sensor_mag_0, all_data.sensor_baro_0 ];
+  let data_is_visible = [ true, true, true ];
   let color_scale = d3.scaleOrdinal(d3.schemeCategory10);
   let data_accesors = [ d => d.mag, d => d.mag, d => d.pressure ];
   // TODO: If there is only one datapoint selected, we don't need to normalise,
@@ -497,16 +498,20 @@ async function generate_path_line_chart(all_data, selection) {
         .y(d => scale_y(normalize_scales[i](data_accesors[i](d))))
     );
 
-  g.selectAll("path.graph-line")
-    .data(data)
-    .join(
-      enter => enter.append("path")
-        .classed("graph-line", true),
-      update => update,
-      exit => exit.remove()
-    )
-    .attr("d", (d, i) => lines[i](d))
-    .attr("stroke", (d, i) => color_scale(i));
+  let update_lines = () => {
+    g.selectAll("path.graph-line")
+      .data(data)
+      .join(
+        enter => enter.append("path")
+          .classed("graph-line", true),
+        update => update,
+        exit => exit.remove()
+      )
+      .attr("d", (d, i) => lines[i](d))
+      .attr("stroke", (d, i) => color_scale(i))
+      .attr("visibility", (d, i) => data_is_visible[i]?"visible":"hidden");
+  };
+  update_lines();
   
   g.append("rect")
     .attr("width", svg_size.width - padding.left - padding.right)
@@ -549,7 +554,11 @@ async function generate_path_line_chart(all_data, selection) {
       .attr("type", "checkbox")
       .classed("custom-control-input", true)
       .attr("id", id)
-      .attr("checked", true);
+      .property("checked", true)
+      .on("change", function (d, i) {
+        data_is_visible[i] = d3.select(this).property("checked");
+        update_lines();
+      });
     div.append("label")
       .classed("custom-control-label", true)
       .attr("for", id)
@@ -559,11 +568,9 @@ async function generate_path_line_chart(all_data, selection) {
   let legend = d3.select("#path-line-chart-legend");
   legend.selectAll("div")
     .data(data_names)
-    .join(
-      enter => enter.append("div").call(populate_legend_label),
-      update => update,
-      exit => exit.remove()
-    );
+    .enter()
+    .append("div")
+    .call(populate_legend_label);
 }
 
 
