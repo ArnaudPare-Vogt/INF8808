@@ -442,8 +442,15 @@ function setup_selected_point_info(selection) {
 
 
 
-async function generate_path_line_chart(example_flight_file, selection) {
-  let acceleration_data_promise = example_flight_file.retreive_message("sensor_accel_0");
+async function generate_path_line_chart(all_data, selection) {
+  let acceleration_data = all_data.sensor_accel_0;
+  let data = [ all_data.sensor_accel_0,  all_data.sensor_mag_0, all_data.sensor_baro_0];
+  let color_scale = d3.scaleOrdinal(d3.schemeCategory10);
+  let data_accesors = [ d => d.mag, d => d.mag, d => d.pressure ];
+  // TODO: If there is only one datapoint selected, we don't need to normalise,
+  // so we could display the actual scale instead.
+  let normalize_scales = range(data.length)
+    .map(i => d3.scaleLinear(d3.extent(data[i], data_accesors[i]), [0, 1]));
 
   let svg = d3.select("#path-line-chart");
   let svg_size = {
@@ -460,15 +467,12 @@ async function generate_path_line_chart(example_flight_file, selection) {
 
   let g = svg.append("g")
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
-  
-  let acceleration_data = await acceleration_data_promise;
-
 
   let scale_x = d3.scaleTime()
     .domain(d3.extent(acceleration_data, row => row.timestamp))
     .range([0, svg_size.width - padding.left - padding.right]);
   let scale_y = d3.scaleLinear()
-    .domain(d3.extent(acceleration_data, row => row.mag))
+    .domain([0, 1])
     .range([svg_size.height - padding.top - padding.bottom, 0]);
   
   let axis_x = d3.axisBottom(scale_x);
@@ -486,15 +490,22 @@ async function generate_path_line_chart(example_flight_file, selection) {
     .attr("transform", "translate(0,0)")
     .call(axis_y);
 
-  let accel_line = d3.line()
-    .x(row => scale_x(row.timestamp))
-    .y(row => scale_y(row.mag));
+  let lines = range(data.length)
+    .map(i => d3.line()
+        .x(d => scale_x(d.timestamp))
+        .y(d => scale_y(normalize_scales[i](data_accesors[i](d))))
+    );
 
-  g.append("path")
-    .datum(acceleration_data)
-    .attr("d", accel_line)
-    .attr("stroke", "black")
-    .classed("graph-line", true);
+  g.selectAll("path.graph-line")
+    .data(data)
+    .join(
+      enter => enter.append("path")
+        .classed("graph-line", true),
+      update => update,
+      exit => exit.remove()
+    )
+    .attr("d", (d, i) => lines[i](d))
+    .attr("stroke", (d, i) => color_scale(i));
   
   g.append("rect")
     .attr("width", svg_size.width - padding.left - padding.right)
@@ -567,5 +578,5 @@ example_flight_file.retreive_all().then((all_data) => {
   }, selection);
   generate_3d_plot(all_data, selection);
   setup_selected_point_info(selection);
-  generate_path_line_chart(example_flight_file, selection);
+  generate_path_line_chart(all_data, selection);
 });
