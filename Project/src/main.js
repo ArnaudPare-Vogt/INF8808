@@ -541,8 +541,11 @@ async function generate_path_line_chart(all_data, selection) {
 
   let zoom = d3.zoom()
     .scaleExtent([1, 32])
+    .extent([[0, 0], [svg_size.width - padding.left - padding.right, 0]])
+    .translateExtent([[0, 0], [svg_size.width - padding.left - padding.right, 0]])
     .on("zoom", () => {
       const transform = d3.event.transform;
+      console.log(transform);
       const zx = transform.rescaleX(scale_x).interpolate(d3.interpolateRound);
       svg.select("g.axis.x").call(axis_x, zx);
       lines.forEach(line => line.x(d => zx(d.timestamp)));
