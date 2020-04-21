@@ -583,10 +583,56 @@ async function generate_path_line_chart(all_data, selection) {
 
 function generate_remote_controller(selection) {
   let svg = d3.select("#rc-view");
-  let toggle_position_extent = [191, 194];
+  let left_stick = svg.select("#left-stick");
+  let right_stick = svg.select("#right-stick");
+  // Note: the values below for the domain come from the px4 specs
+  let px4_rc_input_domain = [1000, 2000];
+  // Note: the value for the range come from the svg controller.svg
+  let toggle_scale = d3.scaleLinear()
+    .domain(px4_rc_input_domain)
+    .range([191, 194])
+    .clamp(true);
+  let thrust_scale = d3.scaleLinear()
+    .domain(px4_rc_input_domain)
+    .range([parseFloat(left_stick.attr("cy")) + parseFloat(left_stick.attr("r")),
+            parseFloat(left_stick.attr("cy")) - parseFloat(left_stick.attr("r"))])
+    .clamp(true);
+  let yaw_scale = d3.scaleLinear()
+    .domain(px4_rc_input_domain)
+    .range([parseFloat(left_stick.attr("cx")) - parseFloat(left_stick.attr("r")),
+            parseFloat(left_stick.attr("cx")) + parseFloat(left_stick.attr("r"))])
+    .clamp(true);
+  let pitch_scale = d3.scaleLinear()
+    .domain(px4_rc_input_domain)
+    .range([parseFloat(right_stick.attr("cy")) + parseFloat(right_stick.attr("r")),
+            parseFloat(right_stick.attr("cy")) - parseFloat(right_stick.attr("r"))])
+    .clamp(true);
+  let roll_scale = d3.scaleLinear()
+    .domain(px4_rc_input_domain)
+    .range([parseFloat(right_stick.attr("cx")) - parseFloat(right_stick.attr("r")),
+            parseFloat(right_stick.attr("cx")) + parseFloat(right_stick.attr("r"))])
+    .clamp(true);
+  console.log(pitch_scale.range());
   selection.subscribe_to_selected_datum(["input_rc_0"], {
     next: (datum) => {
-      //console.log(datum);
+      // TODO: Set the controller to a "disabled" state
+      if (!datum) return;
+
+      let rc_input = datum[0];
+      // Set channel 0 and 1 (thrust and yaw)
+      svg.select("#left-knob")
+        .attr("cx", yaw_scale(rc_input.values[3]))
+        .attr("cy", thrust_scale(rc_input.values[2]));
+      // TODO: I'm not sure which is roll and wich is pitch
+      svg.select("#right-knob")
+        .attr("cx", roll_scale(rc_input.values[0]))
+        .attr("cy", pitch_scale(rc_input.values[1]));
+      //console.log(`${svg.select("#right-knob").attr("cx")}, ${svg.select("#left-knob").attr("cy")}`)
+      // Set the chanels 4 and above
+      for (let i = 4; i < rc_input.values.length; ++i) {
+        svg.select(`#channel${i}`)
+          .attr("y", toggle_scale(rc_input.values[i]))
+      }
     }
   });
 }
