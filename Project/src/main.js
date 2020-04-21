@@ -444,6 +444,7 @@ function setup_selected_point_info(selection) {
 
 async function generate_path_line_chart(all_data, selection) {
   let acceleration_data = all_data.sensor_accel_0;
+  let data_names = [ "Acceleration",  "Magnetometer", "Barometer" ];
   let data = [ all_data.sensor_accel_0,  all_data.sensor_mag_0, all_data.sensor_baro_0];
   let color_scale = d3.scaleOrdinal(d3.schemeCategory10);
   let data_accesors = [ d => d.mag, d => d.mag, d => d.pressure ];
@@ -537,6 +538,32 @@ async function generate_path_line_chart(all_data, selection) {
         .attr("y2", d => scale_y.range()[1]);
     }
   })
+
+  // Generate the legend
+  let populate_legend_label = (div) => {
+    let id = (d, i) => `path-line-chart-legend-${i}`;
+    div.attr("class", (d, i) => "ordinal" + i)
+      .classed("custom-control", true)
+      .classed("custom-checkbox", true);
+    div.append("input")
+      .attr("type", "checkbox")
+      .classed("custom-control-input", true)
+      .attr("id", id)
+      .attr("checked", true);
+    div.append("label")
+      .classed("custom-control-label", true)
+      .attr("for", id)
+      .text(d => d);
+  }
+
+  let legend = d3.select("#path-line-chart-legend");
+  legend.selectAll("div")
+    .data(data_names)
+    .join(
+      enter => enter.append("div").call(populate_legend_label),
+      update => update,
+      exit => exit.remove()
+    );
 }
 
 

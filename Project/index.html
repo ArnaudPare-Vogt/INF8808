@@ -3,15 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>Drone analysis</title>
+  <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="style/legend.css">
   <link rel="stylesheet" type="text/css" href="style/style.css">
 </head>
 <body>
   <h1>Drone analysis</h1>
   <div class="tab">
-    <button class="tablink" onclick="tab_change(event, 'path-tab')">Path</button>
-    <button class="tablink tabselected" onclick="tab_change(event, 'sensor-tab')">Sensor</button>
+    <button class="tablink tabselected" onclick="tab_change(event, 'path-tab')">Path</button>
+    <button class="tablink" onclick="tab_change(event, 'sensor-tab')">Sensor</button>
   </div>
-  <div id="path-tab" class="tabcontent">
+  <div id="path-tab" class="tabcontent tabselected">
     <div id="main-page">
       <div id="path-view-container">
         <div class="aspect-ratio-1-1">
@@ -23,8 +25,10 @@
           </div>
         </div>
         <!--TODO There is like 10 missing pixels here-->
-        <div>
-          <svg id="path-line-chart" width="100%" height="150"></svg>
+        <div id="path-line-chart-container">
+          <svg id="path-line-chart" height="150"></svg>
+          <div id="path-line-chart-legend">
+          </div>
         </div>
       </div>
       <div id="side-view-container">
@@ -80,7 +84,7 @@
       </div>
     </div>  
   </div>
-  <div id="sensor-tab" class="tabcontent tabselected">
+  <div id="sensor-tab" class="tabcontent">
     <div id="main-page-sensor">
 
     </div>

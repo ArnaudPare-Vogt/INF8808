@@ -1,0 +1,67 @@
+/** Hardcoded color styles for legends with d3 ordinal */
+.custom-checkbox.ordinal0 .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: rgb(31, 119, 180);
+  border-color: #1f77b4;
+}
+.custom-checkbox.ordinal0 .custom-control-input:checked:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(31, 119, 180, 0.25);
+}
+.custom-checkbox.ordinal0 .custom-control-input:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(31, 119, 180, 0.25);
+  border-color: #1f77b4;
+}
+.custom-checkbox.ordinal0 .custom-control-input:active ~ .custom-control-label::before {
+  background-color: #80caff; 
+  border-color: #1f77b4;
+}
+
+
+
+
+
+.custom-checkbox.ordinal1 .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: rgb(255, 127, 14);
+  border-color: #ff7f0e;
+}
+.custom-checkbox.ordinal1 .custom-control-input:checked:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(255, 127, 14, 0.25);
+}
+.custom-checkbox.ordinal1 .custom-control-input:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(255, 127, 14, 0.25);
+  border-color: #ff7f0e;
+}
+.custom-checkbox.ordinal1 .custom-control-input:active ~ .custom-control-label::before {
+  background-color: #ffc089; 
+  border-color: #ff7f0e; 
+}
+
+
+
+
+
+.custom-checkbox.ordinal2 .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: rgb(44, 160, 44);
+  border-color: #2ca02c;
+}
+.custom-checkbox.ordinal2 .custom-control-input:checked:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(44, 160, 44, 0.25);
+}
+.custom-checkbox.ordinal2 .custom-control-input:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem rgba(44, 160, 44, 0.25);
+  border-color: #2ca02c;
+}
+.custom-checkbox.ordinal2 .custom-control-input:active ~ .custom-control-label::before {
+  background-color: #63d663; 
+  border-color: #2ca02c; 
+}
+
+/* 
+TODO : Finish doing ordinal10. Leftover color are 
+d62728
+9467bd
+8c564b
+e377c2
+7f7f7f
+bcbd22
+17becf
+*/

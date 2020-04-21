@@ -195,3 +195,20 @@ div.tooltip {
 .tabcontent:not(.tabselected) {
   display: none;
 }
+
+
+
+
+/** Path line chart styles */
+#path-line-chart-container {
+  display: flex;
+}
+
+#path-line-chart {
+  flex-grow: 1;
+}
+#path-line-chart-legend {
+  margin: 1em;
+  display: flex;
+  flex-direction: column;
+}
