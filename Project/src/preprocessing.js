@@ -28,7 +28,7 @@ const message_preprocessors = {
       u: row.alt
     };
   },
-  "vehicle_gps_position_0": (row, parse_timestamp) => {
+  "vehicle_gps_position_0": (row, parse_timestamp, data) => {
     // See https://github.com/PX4/Firmware/blob/master/msg/vehicle_gps_position.msg
     row.lat = parseInt(row.lat) * 1e-7;
     row.lon = parseInt(row.lon) * 1e-7;
@@ -61,6 +61,19 @@ const message_preprocessors = {
 
     row.heading = parseFloat(row.heading);
     row.heading_offset = parseFloat(row.heading_offset);
+
+    let east_north = lat_lon_distance_to_meters(
+      data[0].lat,
+      row.lat,
+      data[0].lon,
+      row.lon
+    );
+
+    row.enu = {
+      e: east_north[0],
+      n: east_north[1],
+      u: row.alt
+    };
   },
   "vehicle_land_detected_0": (row, parse_timestamp) => {
     // See https://github.com/PX4/Firmware/blob/master/msg/vehicle_land_detected.msg
