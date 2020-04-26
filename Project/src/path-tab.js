@@ -628,11 +628,18 @@ async function generate_path_line_chart(all_data, selection) {
   let axis_x = (g, x) => g.call(d3.axisBottom(x));
   let axis_y = d3.axisLeft(scale.y);
 
-  g.append("g")
+  let xa = g.append("g")
     .classed("axis", true)
     .classed("x", true)
     .attr("transform", "translate(0," + (svg_size.height - padding.bottom - padding.top) + ")")
     .call(axis_x, scale.x);
+  
+  xa.append("text")
+    .classed("title", true)
+    .text("Time")
+    .attr("fill", "currentColor")
+    .attr("x", svg_size.width - padding.left - padding.right)
+    .attr("y", -1);
   
   g.append("g")
     .classed("axis", true)
