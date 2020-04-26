@@ -1,40 +1,134 @@
-const CIRCLE_RADIUS = 45;
-let sensors = [{ "id": 0, "name": 'Accelerator', "sensor_id": "sensor_accel_0", "data_getter": d => d.mag },
-{ "id": 1, "name": 'Estimated', "sensor_id": "vehicle_global_position_0", "data_getter": d => d.enu.u }, //TODO: Check
-{ "id": 2, "name": 'GPS', "sensor_id": "vehicle_gps_position_0", "data_getter": d => d.alt }, //TODO: Check getter
-{ "id": 3, "name": 'Battery', "sensor_id": "battery_status_0", "data_getter": d => d.voltage_v * d.current_a }, //TODO: Check getter
-{ "id": 4, "name": 'Wind', "sensor_id": "vehicle_global_position_0", "data_getter": d => d.enu.u }, //TODO: Check
-{ "id": 5, "name": 'Baro', "sensor_id": "sensor_baro_0", "data_getter": d => d.pressure },
-{ "id": 6, "name": 'Gyro', "sensor_id": "sensor_gyro_0", "data_getter": d => d.temperature }] //TODO: Check getter
+const CIRCLE_RADIUS = 55;
+/**
+*0 Accele(Norm [x]) -> { Battery(powerUsed[x]), Wind(intensity[x]) } 
+*1 Estimated(xyz) -> { GPS(xyz), Baro(y)}
+*2 GPS(xyz) -> { Estimated (xyz), Baro(y) }
+*3 Battery(powerUsed) ->  {Wind(intensity), Baro(y), GPS (alt[y])}
+*4 Wind(x) -> {Battery(x), Accele(x), Baro(y)}
+*5 Baro(y) -> { GPS(y), Estimated(y), Wind(intensity), Battery(powerUsed)}
+*6 Gyro(xyz) -> { Estimated_Attitude (xyz) }
+*7 Estimated_Attitude (xyz) -> { Gyro(xyz) }
+*/
+let sensors = [
+    { "id": 0, "name": 'Accelerometer', "sensor_id": "sensor_accel_0", "data_getter_x": d => d.mag, "data_getter_y": null, "data_getter_z": null },
+    { "id": 1, "name": 'Estimated', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
+    { "id": 2, "name": 'GPS', "sensor_id": "vehicle_gps_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
+    { "id": 3, "name": 'Battery', "sensor_id": "battery_status_0", "data_getter_x": d => d.voltage_v * d.current_a, "data_getter_y": null, "data_getter_z": d => 0 },
+    { "id": 4, "name": 'Wind', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.u, "data_getter_y": null, "data_getter_z": null }, //TODO: Check
+    { "id": 5, "name": 'Baro', "sensor_id": "sensor_baro_0", "data_getter_x": null, "data_getter_y": d => d.pressure, "data_getter_z": null },
+    { "id": 6, "name": 'Gyro', "sensor_id": "sensor_gyro_0", "data_getter_x": d => d.x, "data_getter_y": d => d.y, "data_getter_z": d => d.z },
+    { "id": 7, "name": 'Attitude', "sensor_id": "vehicle_attitude_0", "data_getter_x": d => d.euler[0], "data_getter_y": d => d.euler[1], "data_getter_z": d => d.euler[2] }
+]
 
-let sensorLinks = [{
-    'source': 0,
-    'target': 5
-},
-{
-    'source': 1,
-    'target': 6
-},
-{
-    'source': 1,
-    'target': 2
-},
-{
-    'source': 2,
-    'target': 6
-},
-{
-    'source': 3,
-    'target': 4
-},
-{
-    'source': 3,
-    'target': 5
-},
-{
-    'source': 4,
-    'target': 5
-}]
+let sensorLinks = [
+    [{ // Accelerometer
+        'source': 0, 'target': 3,
+        'x_link': 'data_getter_x', // Means Accel(x) plots with Battery(x)
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 0, 'target': 4,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    }],
+    [{ // Estimated
+        'source': 1, 'target': 2,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    },
+    {
+        'source': 1, 'target': 5,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    }],
+    [{ // GPS
+        'source': 2, 'target': 1,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    },
+    {
+        'source': 2, 'target': 5,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    }],
+    [{ // Battery
+        'source': 3, 'target': 4,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 3, 'target': 5,
+        'x_link': 'data_getter_y',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 3, 'target': 2,
+        'x_link': 'data_getter_y',
+        'y_link': null,
+        'z_link': null
+    }],
+    [{ // Wind(x)
+        'source': 4, 'target': 3,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 4, 'target': 0,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 4, 'target': 5,
+        'x_link': 'data_getter_y',
+        'y_link': null,
+        'z_link': null
+    }],
+    [{ // Baro
+        'source': 5, 'target': 2,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    },
+    {
+        'source': 5, 'target': 1,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    },
+    {
+        'source': 5, 'target': 4,
+        'x_link': null,
+        'y_link': 'data_getter_x', // Baro(y) with Wind(x)
+        'z_link': null
+    },
+    {
+        'source': 5, 'target': 3,
+        'x_link': null,
+        'y_link': 'data_getter_x', // Baro(y) with Battery(x)
+        'z_link': null
+    }],
+    [{ // Gyro
+        'source': 6, 'target': 7,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    }],
+    [{ // Attitude
+        'source': 7, 'target': 6,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    }]]
 
 // set the dimensions and margins of the graph
 let margin = { top: 20, right: 20, bottom: 20, left: 40 },
@@ -64,8 +158,9 @@ function update_selected_sensor(sensor_index) {
     // Find sensors that are connected to this one
     let toIgnore = new Set();
     let linksToIgnore = new Set();
-    for (let i = 0; i < sensorLinks.length; ++i) {
-        let link = sensorLinks[i];
+    let flat = sensorLinks.flat()
+    for (let i = 0; i < flat.length; ++i) {
+        let link = flat[i];
         if (link.source.id == sensor_index || link.target.id == sensor_index) {
             toIgnore.add(link.source.id)
             toIgnore.add(link.target.id)
@@ -80,7 +175,7 @@ function update_selected_sensor(sensor_index) {
     toIgnore
         .forEach(e => svg.select(`#sensor_g_${e}`).style('opacity', '1.0'))
 
-    sensorLinks
+    flat
         .forEach(function (e, idx) {
             if (linksToIgnore.has(idx)) {
                 svg.select(`#link_${idx}`).style('opacity', '1.0')
@@ -88,27 +183,28 @@ function update_selected_sensor(sensor_index) {
                 svg.select(`#link_${idx}`).style('opacity', '0.25')
             }
         })
+
+    //Update the XYZ graphics
+    upd_x(sensors[selected_sensor_index])
+    upd_y(sensors[selected_sensor_index])
+    upd_z(sensors[selected_sensor_index])
+
 }
 
+let upd_x = null;
+let upd_y = null;
+let upd_z = null;
+
 example_flight_file.retreive_all().then((all_data) => {
-    var allSensors = Object.keys(all_data);
-    console.log(allSensors)
-
-    generate_sensor_network(sensors, sensorLinks)
-    generate_sensor_datagraph(all_data, sensors)
-
-    //TODO-WIP: Add graph depending of the selected nodes
-
+    generate_sensor_network(sensors, sensorLinks.flat())
+    upd_x = generate_sensor_datagraph(all_data, sensors, 'x')
+    upd_y = generate_sensor_datagraph(all_data, sensors, 'y')
+    upd_z = generate_sensor_datagraph(all_data, sensors, 'z')
 });
 
 
-function generate_sensor_datagraph(all_data, sensor_list) {
-    let normalize_scales = range(sensor_list.length)
-        .map(i => d3.scaleLinear(d3.extent(all_data[sensor_list[i].sensor_id], sensor_list[i].data_getter), [0, 1]));
-    console.log(normalize_scales)
-    // let sensor_data = [all_data['sensor_gyro_0']]
-    // console.log(all_data['vehicle_gps_position_0'])
-    let sensor_graph_svg = d3.select("#sensor-graphs")
+function generate_sensor_datagraph(all_data, sensor_list, axis) {
+    let sensor_graph_svg = d3.select(`#sensor-graphs-${axis}`)
         .append("svg")
         .attr('width', '100%')
         .attr('height', '100%')
@@ -128,7 +224,7 @@ function generate_sensor_datagraph(all_data, sensor_list) {
     let g = sensor_graph_svg.append("g")
         .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
 
-    let clip_path_id = "sensor-graphs-path-line-chart-clip-path";
+    let clip_path_id = "sensor-graphs-path-line-chart-clip-path" + axis;
     g.append("clipPath")
         .attr("id", clip_path_id)
         .append("rect")
@@ -161,16 +257,39 @@ function generate_sensor_datagraph(all_data, sensor_list) {
         .attr("transform", "translate(0,0)")
         .call(axis_y);
 
-    let lines = range(sensor_list.length)
-        .map(i => d3.line()
-            .x(d => scale.x(d.timestamp))
-            .y(d => scale.y(normalize_scales[i](sensor_list[i].data_getter(d))))
-        );
+
 
     let color_scale = d3.scaleOrdinal(d3.schemeCategory10);
-    let update_lines = () => {
+    let update_lines = (selected_sensor) => {
+        let others = sensorLinks[selected_sensor.id]
+
+        // Check if we need to draw this axis
+        if (others[0][`${axis}_link`] == null) {
+            g.attr('visibility', 'hidden');
+            return;
+        }
+        g.attr('visibility', 'visible');
+
+        let normalize_scales = [d3.scaleLinear(d3.extent(all_data[selected_sensor.sensor_id], selected_sensor[`data_getter_${axis}`]), [0, 1])]
+
+        normalize_scales.push(range(others.length)
+            .map(function (i) {
+                return d3.scaleLinear(d3.extent(all_data[others[i].target.sensor_id], others[i].target[`data_getter_${axis}`]), [0, 1])
+            }));
+        normalize_scales = normalize_scales.flat()
+
+        let data = [selected_sensor]
+        data.push(others.map(d => d.target))
+        data = data.flat()
+
+        let lines = range(data.length)
+            .map(i => d3.line()
+                .x(d => scale.x(d.timestamp))
+                .y(d => data[i][`data_getter_${axis}`] == null ? null : scale.y(normalize_scales[i](data[i][`data_getter_${axis}`](d))))
+            );
+
         g.selectAll("path.graph-line")
-            .data(sensor_list)
+            .data(data)
             .join(
                 enter => enter.append("path")
                     .classed("graph-line", true)
@@ -178,13 +297,13 @@ function generate_sensor_datagraph(all_data, sensor_list) {
                 update => update,
                 exit => exit.remove()
             )
-            .attr("d", (d, i) => lines[i](all_data[d.sensor_id]))
+            .attr("d", (d, i) => lines[i] == null ? "" : lines[i](all_data[d.sensor_id]))
             .attr("stroke", (d, i) => color_scale(i))
-            .attr("visibility", (d, i) => "visible");
-        // .attr("visibility", (d, i) => data_is_visible[i] ? "visible" : "hidden");
-
+            .attr("visibility", (d, i) => sensors[d.id][`data_getter_${axis}`] != null ? "visible" : "hidden");
     };
-    update_lines();
+    g.attr('visibility', 'hidden'); // Lines are hidden by default
+
+    return update_lines
 }
 
 function generate_sensor_network(sensor_list, sensor_links) {
