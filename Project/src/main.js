@@ -669,13 +669,69 @@ function generate_remote_controller(selection) {
 
 
 
+function create_zoom_buttons(all_data, selection) {
+  let svg = d3.selectAll(".four-views > svg");
 
-d3.select(".todo")
-  .style("color", "red");
+  let zoom_button_size = [15, 15];
+  let zoom_button_padding = {
+    top: 2,
+    right: 2
+  };
+  let g = svg.append("g")
+    .attr("transform", function() {
+      return `translate(${
+        this.parentNode.clientWidth - zoom_button_size[0] - zoom_button_padding.right
+      }, ${zoom_button_padding.top})`;
+    });
+
+  let rect = g.append("rect")
+    .classed("zoom-button", true)
+    .attr("width", zoom_button_size[0])
+    .attr("height", zoom_button_size[1])
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("rx", zoom_button_size[0]/4)
+    .attr("ry", zoom_button_size[1]/4);
+  let text = g.append("text")
+    .classed("unselectable", true)
+    .attr("x", zoom_button_size[0] / 2)
+    .attr("y", zoom_button_size[1] / 2)
+    .attr("dominant-baseline", "middle")
+    .attr("text-anchor", "middle")
+    .attr("stroke", "white")
+    .attr("user-select", "none")
+    .text("+");
+  
+  function zoom_in() {
+    d3.select("#small-graphs")
+      .style("display", "none");
+    let svg = d3.select("#big-graph")
+      .style("display", "initial")
+      .select("svg");
+      
+    svg.selectAll("*").remove();
+    generate_2d_plot(all_data, {
+      id: svg.attr("id"),
+      color: "lightgreen",
+      x: "lon",
+      y: "lat",
+      x_axis_class: "red",
+      y_axis_class: "blue"
+    }, selection);
+  }
+  
+  rect.on("click", zoom_in);
+  text.on("click", zoom_in);
+}
+
+
+
+
 
 let example_flight_file = new ULogFile("example_flight");
-//TODO: Allign axis
-example_flight_file.retreive_all().then((all_data) => {
+ON_TAB_FIRST_OPEN["path-tab"] = async () => {
+  //TODO: Allign axis
+  let all_data = await example_flight_file.retreive_all();
   let selection = new Selection(all_data);
   
   // TODO: keep aspect ratio on graphs
@@ -707,4 +763,6 @@ example_flight_file.retreive_all().then((all_data) => {
   setup_selected_point_info(selection);
   generate_path_line_chart(all_data, selection);
   generate_remote_controller(selection);
-});
+
+  create_zoom_buttons(all_data, selection);
+}

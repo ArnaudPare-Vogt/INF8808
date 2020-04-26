@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Drone analysis</title>
   <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="lib/font-awesome/css/all.css">
   <link rel="stylesheet" type="text/css" href="style/legend.css">
   <link rel="stylesheet" type="text/css" href="style/style.css">
 </head>
@@ -17,11 +18,14 @@
     <div id="main-page">
       <div id="path-view-container">
         <div class="aspect-ratio-1-1">
-          <div class="aspect-ratio-child four-views">
+          <div id="small-graphs" class="aspect-ratio-child four-views">
             <svg id="path-view-front" width="100%" height="100%" style="background-color: purple;"></svg>
             <svg id="path-view-left" width="100%" height="100%" style="background-color: red;"></svg>
             <svg id="path-view-top" width="100%" height="100%" style="background-color: green;"></svg>
             <svg id="path-view-3d" width="100%" height="100%" style="background-color: blue;"></svg>
+          </div>
+          <div id="big-graph" class="aspect-ratio-child">
+            <svg id="zoomed-graph" width="100%" height="100%" style="background-color: purple;"></svg>
           </div>
         </div>
         <div id="path-line-chart-container">
