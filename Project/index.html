@@ -10,10 +10,10 @@
 <body>
   <h1>Drone analysis</h1>
   <div class="tab">
-    <button class="tablink tabselected" onclick="tab_change(event, 'path-tab')">Path</button>
-    <button class="tablink" onclick="tab_change(event, 'sensor-tab')">Sensor</button>
+    <button class="tablink" onclick="tab_change(event, 'path-tab')">Path</button>
+    <button class="tablink tabselected" onclick="tab_change(event, 'sensor-tab')">Sensor</button>
   </div>
-  <div id="path-tab" class="tabcontent tabselected">
+  <div id="path-tab" class="tabcontent">
     <div id="main-page">
       <div id="path-view-container">
         <div class="aspect-ratio-1-1">
@@ -243,7 +243,7 @@
       </div>
     </div>  
   </div>
-  <div id="sensor-tab" class="tabcontent">
+  <div id="sensor-tab" class="tabcontent tabselected">
     <div id="main-page-sensor">
     </div>
     <div id="sensor-graphs">

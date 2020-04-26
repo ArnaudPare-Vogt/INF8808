@@ -670,12 +670,10 @@ function generate_remote_controller(selection) {
 
 
 
-d3.select(".todo")
-  .style("color", "red");
-
 let example_flight_file = new ULogFile("example_flight");
-//TODO: Allign axis
-example_flight_file.retreive_all().then((all_data) => {
+ON_TAB_FIRST_OPEN["path-tab"] = async () => {
+  //TODO: Allign axis
+  let all_data = await example_flight_file.retreive_all();
   let selection = new Selection(all_data);
   
   // TODO: keep aspect ratio on graphs
@@ -707,4 +705,4 @@ example_flight_file.retreive_all().then((all_data) => {
   setup_selected_point_info(selection);
   generate_path_line_chart(all_data, selection);
   generate_remote_controller(selection);
-});
+}
