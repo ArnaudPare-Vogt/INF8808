@@ -509,15 +509,15 @@ function setup_selected_point_info(selection) {
       next: (d) => {
         if (!d) {
           d = [
-            { lon: "?", lat: "?", alt: "?" },
+            { enu: {e: "?", n: "?", u: "?"} },
             { x: "?", y: "?", z: "?" },
             { x: "?", y: "?", z: "?" },
             { pressure: "?" },
             { q: new Quaternion() }];
         }
-        d3.selectAll(".pos_x").text(fmt(d[0].lon));
-        d3.selectAll(".pos_y").text(fmt(d[0].alt));
-        d3.selectAll(".pos_z").text(fmt(d[0].lat));
+        d3.selectAll(".pos_x").text(fmt(d[0].enu.e));
+        d3.selectAll(".pos_y").text(fmt(d[0].enu.u));
+        d3.selectAll(".pos_z").text(fmt(d[0].enu.n));
         d3.selectAll(".acc_x").text(fmt(d[1].x));
         d3.selectAll(".acc_y").text(fmt(d[1].y));
         d3.selectAll(".acc_z").text(fmt(d[1].z));
