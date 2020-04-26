@@ -55,15 +55,15 @@ let sensorLinks = [
     },
     {
         'source': 2, 'target': 3,
-        'x_link': 'data_getter_y',
-        'y_link': 'data_getter_y',
-        'z_link': 'data_getter_y'
-    },
-    {
-        'source': 2, 'target': 5,
         'x_link': 'data_getter_x',
         'y_link': 'data_getter_x',
         'z_link': 'data_getter_x'
+    },
+    {
+        'source': 2, 'target': 5, // Baro
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
     }],
     [{ // Battery
         'source': 3, 'target': 4,
@@ -281,19 +281,24 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
         normalize_scales.push(range(others.length)
             .map(function (i) {
                 let data_getter = others[i][`${axis}_link`];
-                return d3.scaleLinear(d3.extent(all_data[others[i].target.sensor_id], others[i].target[data_getter]), [0, 1])
+                return d3.scaleLinear(
+                    d3.extent(all_data[others[i].target.sensor_id], others[i].target[data_getter]),
+                    [0, 1]);
             }));
         normalize_scales = normalize_scales.flat()
 
         let data = [selected_sensor]
-        data.push(others.map(d => d.target))
+        data.push(others.filter(d => d[`${axis}_link`] !== null).map(d => d.target))
         data = data.flat()
+        let data_getters = [`data_getter_${axis}`];
+        data_getters.push(others.filter(d => d[`${axis}_link`] !== null).map(d => d[`${axis}_link`]));
+        data_getters = data_getters.flat();
 
         let lines = range(data.length)
             .map(i => d3.line()
                 .x(d => scale.x(d.timestamp))
                 .y(d => {
-                    let data_getter = `data_getter_${axis}`;
+                    let data_getter = data_getters[i];
                     if (!data[i][data_getter]) return null;
                     return scale.y(normalize_scales[i](data[i][data_getter](d)));
                 })
@@ -308,9 +313,8 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
                 update => update,
                 exit => exit.remove()
             )
-            .attr("d", (d, i) => lines[i] == null ? "" : lines[i](all_data[d.sensor_id]))
-            .attr("stroke", (d) => color_scale(d.id))
-            .attr("visibility", (d, i) => sensors[d.id][`data_getter_${axis}`] != null ? "visible" : "hidden");
+            .attr("d", (d, i) => lines[i](all_data[d.sensor_id]))
+            .attr("stroke", (d) => color_scale(d.id));
     };
     g.attr('visibility', 'hidden'); // Lines are hidden by default
 
