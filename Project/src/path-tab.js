@@ -183,7 +183,7 @@ async function generate_2d_plot(all_data, plot_info, selection) {
   };
 
   let padding = {
-    left: 50,
+    left: 25,
     right: 10,
     top: 10,
     bottom: 20,
@@ -195,6 +195,7 @@ async function generate_2d_plot(all_data, plot_info, selection) {
 
   let data = all_data.vehicle_global_position_0;
 
+  let axis_titles = { lon: "East", lat: "North", alt: "Up" };
   let accessors = {
     lon: (d) => d.enu.e,
     lat: (d) => d.enu.n,
@@ -231,6 +232,12 @@ async function generate_2d_plot(all_data, plot_info, selection) {
     .classed(plot_info.x_axis_class, true)
     .call(axis_x);
   
+  xa.append("text")
+    .classed("title", true)
+    .text(axis_titles[plot_info.x])
+    .attr("x", svg_size.width - padding.left - padding.right)
+    .attr("y", -1);
+
   xa.select("path").attr("marker-end", "url(#" + arrowhead_x_id + ")");
 
   let ya = svg.append("g")
@@ -240,11 +247,18 @@ async function generate_2d_plot(all_data, plot_info, selection) {
     .classed(plot_info.y_axis_class, true)
     .call(axis_y);
   
+  ya.append("text")
+    .classed("title", true)
+    .attr("x", 1)
+    .attr("y", padding.top)
+    .text(axis_titles[plot_info.y]);
+  
   ya.select("path").attr("marker-end", "url(#" + arrowhead_y_id + ")");
 
   let g = svg.append("g")
     .classed("path-transform", true)
     .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+
   g.append("path")
     .classed("flight-path", true)
     .datum(data)

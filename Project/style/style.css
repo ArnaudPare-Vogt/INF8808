@@ -77,6 +77,14 @@ div.tooltip {
   fill: blue;
 }
 
+.axis.x .title {
+  text-anchor: end;
+}
+
+.axis.y .title {
+  text-anchor: start;
+}
+
 
 
 
