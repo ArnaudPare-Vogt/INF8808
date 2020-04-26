@@ -195,13 +195,18 @@ async function generate_2d_plot(all_data, plot_info, selection) {
 
   let data = all_data.vehicle_global_position_0;
 
+  let accessors = {
+    lon: (d) => d.enu.e,
+    lat: (d) => d.enu.n,
+    alt: (d) => d.enu.u
+  };
   let scales = {
     lon: d3.scaleLinear()
-      .domain(d3.extent(data.map(row => row.lon))),
+      .domain(d3.extent(data.map(row => row.enu.e))),
     lat: d3.scaleLinear()
-      .domain(d3.extent(data.map(row => row.lat))),
+      .domain(d3.extent(data.map(row => row.enu.n))),
     alt: d3.scaleLinear()
-      .domain(d3.extent(data.map(row => row.alt)))
+      .domain(d3.extent(data.map(row => row.enu.u)))
   };
   scales[plot_info.x].range([0, svg_size.width - padding.left - padding.right]);
   scales[plot_info.y].range([svg_size.height - padding.top - padding.bottom, 0]);
@@ -211,8 +216,8 @@ async function generate_2d_plot(all_data, plot_info, selection) {
   let axis_y = d3.axisLeft(scales[plot_info.y])
     .tickSizeOuter(0);
   let flight_path = d3.line()
-    .x(d => scales[plot_info.x](d[plot_info.x]))
-    .y(d => scales[plot_info.y](d[plot_info.y]));
+    .x(d => scales[plot_info.x](accessors[plot_info.x](d)))
+    .y(d => scales[plot_info.y](accessors[plot_info.y](d)));
   
   let points = d3.quadtree()
     .x(flight_path.x())
