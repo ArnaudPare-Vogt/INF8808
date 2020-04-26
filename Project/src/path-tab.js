@@ -599,7 +599,7 @@ async function generate_path_line_chart(all_data, selection) {
   };
   
   let padding = {
-    left: 50,
+    left: 25,
     right: 10,
     top: 10,
     bottom: 20,
@@ -641,11 +641,18 @@ async function generate_path_line_chart(all_data, selection) {
     .attr("x", svg_size.width - padding.left - padding.right)
     .attr("y", -1);
   
-  g.append("g")
+  let ya = g.append("g")
     .classed("axis", true)
     .classed("y", true)
     .attr("transform", "translate(0,0)")
     .call(axis_y);
+
+  ya.append("text")
+    .classed("title", true)
+    .text("Normalized data")
+    .attr("fill", "currentColor")
+    .attr("x", 0)
+    .attr("y", 0);
 
   let lines = range(data.length)
     .map(i => d3.line()
