@@ -9,6 +9,7 @@ class Selection {
     this._messages = all_messages;
     this._currently_selected_datum = new rxjs.BehaviorSubject(undefined);
     this._currently_selected_range = new rxjs.BehaviorSubject(undefined);
+    this.zoomed_out_event = new rxjs.Subject(undefined);
   }
 
   subscribe_to_selected_datum(message_names, subscriber) {

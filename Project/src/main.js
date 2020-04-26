@@ -248,7 +248,7 @@ async function generate_2d_plot(all_data, plot_info, selection) {
       g.selectAll("path.flight-path-selection")
         .data(all_data)
         .join(
-          enter => enter.append("path")
+          enter => enter.insert("path", ":first-child")
             .classed("flight-path-selection", true),
           update => update,
           exit => exit.remove()
@@ -366,12 +366,12 @@ async function generate_3d_plot(id, all_data, selection) {
     if (range && range[0] !== data) {
       all_data = [range[0]];
     }
-    let data_3d = flight_path(all_data);
+    flight_path(all_data);
 
     g.selectAll("path.flight-path-selection")
       .data(all_data)
       .join(
-        enter => enter.append("path")
+        enter => enter.insert("path", ":first-child")
           .classed("flight-path-selection", true),
         update => update,
         exit => exit.remove()
@@ -446,6 +446,11 @@ async function generate_3d_plot(id, all_data, selection) {
   selection.subscribe_to_selected_range(["vehicle_global_position_0"], {
     next: update_selection_range
   });
+  // Ensure we update the 3d when we zoom out
+  // But only if we are the original zoomed out svg
+  if (id == "path-view-3d") {
+    selection.zoomed_out_event.subscribe({ next: update_3d });
+  }
 }
 
 
@@ -719,7 +724,7 @@ function generate_remote_controller(selection) {
 
 
 
-function create_zoom_buttons(generators) {
+function create_zoom_buttons(generators, selection) {
   let svg = d3.selectAll(".four-views > svg");
 
   let zoom_button_size = [15, 15];
@@ -775,6 +780,7 @@ function create_zoom_buttons(generators) {
       let svg = d3.select("#big-graph")
         .style("display", "none")
         .select("svg");
+      selection.zoomed_out_event.next();
     });
   }
 
@@ -828,5 +834,5 @@ ON_TAB_FIRST_OPEN["path-tab"] = async () => {
   generate_path_line_chart(all_data, selection);
   generate_remote_controller(selection);
 
-  create_zoom_buttons(generators);
+  create_zoom_buttons(generators, selection);
 }
