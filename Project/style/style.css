@@ -151,6 +151,14 @@ div.tooltip {
   stroke-dasharray: 5, 5;
 }
 
+.flight-path-selection {
+  fill: none;
+  stroke: black;
+  stroke-width: 3;
+  stroke-opacity: 0.3;
+  pointer-events: none;
+}
+
 
 
 

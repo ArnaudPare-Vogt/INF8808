@@ -238,6 +238,24 @@ async function generate_2d_plot(all_data, plot_info, selection) {
         .attr("cy", flight_path.y());
     }
   })
+
+  selection.subscribe_to_selected_range(["vehicle_global_position_0"], {
+    next: (range) => {
+      all_data = [];
+      if (range && range[0] !== data) {
+        all_data = [range[0]];
+      }
+      g.selectAll("path.flight-path-selection")
+        .data(all_data)
+        .join(
+          enter => enter.append("path")
+            .classed("flight-path-selection", true),
+          update => update,
+          exit => exit.remove()
+        )
+        .attr("d", flight_path);
+    }
+  });
 }
 
 
@@ -343,6 +361,24 @@ async function generate_3d_plot(id, all_data, selection) {
       .attr("cx", points.x())
       .attr("cy", points.y());
   }
+  function update_selection_range(range) {
+    all_data = [];
+    if (range && range[0] !== data) {
+      all_data = [range[0]];
+    }
+    let data_3d = flight_path(all_data);
+
+    g.selectAll("path.flight-path-selection")
+      .data(all_data)
+      .join(
+        enter => enter.append("path")
+          .classed("flight-path-selection", true),
+        update => update,
+        exit => exit.remove()
+      )
+      .attr("d", flight_path.draw);
+  }
+
   function update_3d() {
     flight_path.rotateX(phi);
     flight_path.rotateY(theta);
@@ -387,6 +423,10 @@ async function generate_3d_plot(id, all_data, selection) {
     if (current_datum) {
       update_selection_circle(current_datum);
     }
+    let current_range = selection.get_selected_range(["vehicle_global_position_0"]);
+    if (current_range) {
+      update_selection_range(current_range);
+    }
   }
   update_3d();
 
@@ -401,6 +441,10 @@ async function generate_3d_plot(id, all_data, selection) {
 
   selection.subscribe_to_selected_datum(["vehicle_global_position_0"], {
     next: update_selection_circle
+  });
+
+  selection.subscribe_to_selected_range(["vehicle_global_position_0"], {
+    next: update_selection_range
   });
 }
 
@@ -580,6 +624,14 @@ async function generate_path_line_chart(all_data, selection) {
       svg.select("g.axis.x").call(axis_x, scale.x);
       update_lines();
       update_selection_line(selection.get_selected_datum(["sensor_accel_0"]));
+      if (d3.event.transform.k === 1) {
+        selection.next_selected_range(undefined, undefined);
+      }
+      else {
+        let start = scale.x.invert(scale.x.range()[0]);
+        let end = scale.x.invert(scale.x.range()[1]);
+        selection.next_selected_range(start, end);
+      }
     });
 
   g.append("rect")
@@ -642,7 +694,6 @@ function generate_remote_controller(selection) {
     .range([parseFloat(right_stick.attr("cx")) - parseFloat(right_stick.attr("r")),
             parseFloat(right_stick.attr("cx")) + parseFloat(right_stick.attr("r"))])
     .clamp(true);
-  console.log(pitch_scale.range());
   selection.subscribe_to_selected_datum(["input_rc_0"], {
     next: (datum) => {
       // TODO: Set the controller to a "disabled" state
@@ -656,7 +707,6 @@ function generate_remote_controller(selection) {
       svg.select("#right-knob")
         .attr("cx", roll_scale(rc_input.values[0]))
         .attr("cy", pitch_scale(rc_input.values[1]));
-      //console.log(`${svg.select("#right-knob").attr("cx")}, ${svg.select("#left-knob").attr("cy")}`)
       // Set the chanels 4 and above
       for (let i = 4; i < rc_input.values.length; ++i) {
         svg.select(`#channel${i}`)
