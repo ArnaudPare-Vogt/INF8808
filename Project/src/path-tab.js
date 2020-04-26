@@ -20,7 +20,7 @@ var format = d3.formatLocale({
  * @param {*} g the g element of the graph
  * @param {*} points The quadtree of points to search in
  */
-function update_hover_circle(g, points) {
+function update_hover_circle(g, points, all_data) {
   let coords = d3.clientPoint(g.node(), d3.event);
   let closest_datum = points.find(coords[0], coords[1]);
 
@@ -35,7 +35,8 @@ function update_hover_circle(g, points) {
         .attr("stroke", "grey")
         .attr("r", 4);
 
-        update_hover_tooltip(g, closest_datum);
+        update_hover_tooltip(g, closest_datum.timestamp, all_data,
+          ["vehicle_global_position_0", "sensor_accel_0", "vehicle_attitude_0"]);
         
         return result;
       },
@@ -50,19 +51,62 @@ function update_hover_circle(g, points) {
 
 
 
-function update_hover_tooltip(g, datapoint) {
+function update_hover_tooltip(g, timestamp, all_data, displayed_sensors) {
+  let datums = displayed_sensors.map((message_name) => {
+    // TODO: Optimize this shit
+    let data = all_data[message_name];
+    let datum = data[
+      data.min_index((d) => Math.abs(d.timestamp - timestamp))
+    ];
+    return datum;
+  });
+
   // Round the numbers to 2 decimals
   let fmt = format.format(" ,.2f");
-  let x = datapoint.enu.e;
-  let y = datapoint.enu.u;
-  let z = datapoint.enu.n;
-
+  
+  let position = "";
+  if (displayed_sensors.indexOf("vehicle_global_position_0") !== -1) {
+    let index = displayed_sensors.indexOf("vehicle_global_position_0");
+    let x = datums[index].enu.e;
+    let y = datums[index].enu.u;
+    let z = datums[index].enu.n;
+    position = `<tr><td>Pos:</td><td>(${fmt(x)}, ${fmt(y)}, ${fmt(z)})</td></tr>`;
+  }
+  
+  let acceleration = "";
+  if (displayed_sensors.indexOf("sensor_accel_0") !== -1) {
+    let index = displayed_sensors.indexOf("sensor_accel_0");
+    let x = datums[index].x;
+    let y = datums[index].y;
+    let z = datums[index].z;
+    acceleration = `<tr><td>Acc:</td><td>(${fmt(x)}, ${fmt(y)}, ${fmt(z)})</td></tr>`;
+  }
+  
+  let rotation = "";
+  if (displayed_sensors.indexOf("vehicle_attitude_0") !== -1) {
+    let index = displayed_sensors.indexOf("vehicle_attitude_0");
+    let x = datums[index].q.toEuler()[0];
+    let y = datums[index].q.toEuler()[1];
+    let z = datums[index].q.toEuler()[2];
+    rotation = `<tr><td>Rot:</td><td>(${fmt(x)}, ${fmt(y)}, ${fmt(z)})</td></tr>`;
+  }
+  
+  let magnetometer = "";
+  if (displayed_sensors.indexOf("sensor_mag_0") !== -1) {
+    let index = displayed_sensors.indexOf("sensor_mag_0");
+    let x = datums[index].x;
+    let y = datums[index].y;
+    let z = datums[index].z;
+    magnetometer = `<tr><td>Mag:</td><td>(${fmt(x)}, ${fmt(y)}, ${fmt(z)})</td></tr>`;
+  }
+  let baro = "";
+  if (displayed_sensors.indexOf("sensor_baro_0") !== -1) {
+    let index = displayed_sensors.indexOf("sensor_baro_0");
+    let x = datums[index].pressure;
+    baro = `<tr><td>Mag:</td><td>(${fmt(x)})</td></tr>`;
+  }
   tooltip_div.style("opacity", .9);
-  tooltip_div.html(`<table>
-  <tr><td>Pos:</td><td>(${fmt(x)}, ${fmt(y)}, ${fmt(z)})</td></tr>
-  <tr><td>Acc:</td><td>(xx.xx, yy.yy, zz.zz)</td></tr>
-  <tr><td>Rot:</td><td>(xx.xx, yy.yy, zz.zz)</td></tr>
-  </table>`)
+  tooltip_div.html(`<table>${position}${acceleration}${rotation}${magnetometer}${baro}</table>`)
     .style("left", (d3.event.pageX) + "px")
     .style("top", (d3.event.pageY - 28) + "px");
 } 
@@ -215,7 +259,7 @@ async function generate_2d_plot(all_data, plot_info, selection) {
 
       selection.next_selected_datum(closest_datum.timestamp);
     })
-    .on("mousemove", () => update_hover_circle(g, points))
+    .on("mousemove", () => update_hover_circle(g, points, all_data))
     .on("mouseleave", () => remove_hover_circle(g));
 
   selection.subscribe_to_selected_datum(["vehicle_global_position_0"], {
@@ -241,7 +285,7 @@ async function generate_2d_plot(all_data, plot_info, selection) {
 
   selection.subscribe_to_selected_range(["vehicle_global_position_0"], {
     next: (range) => {
-      all_data = [];
+      let all_data = [];
       if (range && range[0] !== data) {
         all_data = [range[0]];
       }
@@ -336,7 +380,7 @@ async function generate_3d_plot(id, all_data, selection) {
     .attr("stroke", "none")
     .style("stroke-width", 10)
     .style("pointer-events", "stroke")
-    .on("mousemove", () => update_hover_circle(g, points))
+    .on("mousemove", () => update_hover_circle(g, points, all_data))
     .on("mouseleave", () => remove_hover_circle(g))
     .on("click", () => {
       let coords = d3.clientPoint(g.node(), d3.event);
@@ -362,7 +406,7 @@ async function generate_3d_plot(id, all_data, selection) {
       .attr("cy", points.y());
   }
   function update_selection_range(range) {
-    all_data = [];
+    let all_data = [];
     if (range && range[0] !== data) {
       all_data = [range[0]];
     }
