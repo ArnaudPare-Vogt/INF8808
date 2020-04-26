@@ -220,7 +220,7 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
     };
 
     let padding = {
-        left: 50,
+        left: 25,
         right: 10,
         top: 10,
         bottom: 20,
@@ -280,7 +280,8 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
 
         normalize_scales.push(range(others.length)
             .map(function (i) {
-                return d3.scaleLinear(d3.extent(all_data[others[i].target.sensor_id], others[i].target[`data_getter_${axis}`]), [0, 1])
+                let data_getter = others[i][`${axis}_link`];
+                return d3.scaleLinear(d3.extent(all_data[others[i].target.sensor_id], others[i].target[data_getter]), [0, 1])
             }));
         normalize_scales = normalize_scales.flat()
 
@@ -291,7 +292,11 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
         let lines = range(data.length)
             .map(i => d3.line()
                 .x(d => scale.x(d.timestamp))
-                .y(d => data[i][`data_getter_${axis}`] == null ? null : scale.y(normalize_scales[i](data[i][`data_getter_${axis}`](d))))
+                .y(d => {
+                    let data_getter = `data_getter_${axis}`;
+                    if (!data[i][data_getter]) return null;
+                    return scale.y(normalize_scales[i](data[i][data_getter](d)));
+                })
             );
 
         g.selectAll("path.graph-line")
