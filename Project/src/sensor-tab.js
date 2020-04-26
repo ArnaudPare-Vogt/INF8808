@@ -261,7 +261,8 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
 
 
 
-    let color_scale = d3.scaleOrdinal(d3.schemeCategory10);
+    let color_scale = d3.scaleOrdinal(d3.schemeCategory10)
+        .domain(sensors.map(d => d.id));
     let update_lines = (selected_sensor) => {
         let others = sensorLinks[selected_sensor.id]
 
@@ -300,7 +301,7 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
                 exit => exit.remove()
             )
             .attr("d", (d, i) => lines[i] == null ? "" : lines[i](all_data[d.sensor_id]))
-            .attr("stroke", (d, i) => color_scale(i))
+            .attr("stroke", (d) => color_scale(d.id))
             .attr("visibility", (d, i) => sensors[d.id][`data_getter_${axis}`] != null ? "visible" : "hidden");
     };
     g.attr('visibility', 'hidden'); // Lines are hidden by default
@@ -326,11 +327,13 @@ function generate_sensor_network(sensor_list, sensor_links) {
         .append('g')
         .attr("id", (entry) => `sensor_g_${entry.id}`)
 
+    let color_scale = d3.scaleOrdinal(d3.schemeCategory10)
+        .domain(sensors.map(d => d.id));
     let circle = node
         .append("circle")
         .attr("id", (entry) => `sensor_${entry.id}`)
         .attr("r", CIRCLE_RADIUS)
-        .style("fill", d => getRandomColor())
+        .style("fill", d => color_scale(d.id))
 
     node.on('click', e => update_selected_sensor(e.id))
         .on("mouseover", function (d) { d3.select(this).style("cursor", "pointer"); })
