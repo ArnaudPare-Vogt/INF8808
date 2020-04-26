@@ -35,7 +35,7 @@ function update_hover_circle(g, points, all_data) {
         .attr("stroke", "grey")
         .attr("r", 4);
 
-        update_hover_tooltip(g, closest_datum.timestamp, all_data,
+        update_hover_tooltip([d3.event.pageX, d3.event.pageY], closest_datum.timestamp, all_data,
           ["vehicle_global_position_0", "sensor_accel_0", "vehicle_attitude_0"]);
         
         return result;
@@ -51,7 +51,7 @@ function update_hover_circle(g, points, all_data) {
 
 
 
-function update_hover_tooltip(g, timestamp, all_data, displayed_sensors) {
+function update_hover_tooltip(point, timestamp, all_data, displayed_sensors) {
   let datums = displayed_sensors.map((message_name) => {
     // TODO: Optimize this shit
     let data = all_data[message_name];
@@ -103,19 +103,19 @@ function update_hover_tooltip(g, timestamp, all_data, displayed_sensors) {
   if (displayed_sensors.indexOf("sensor_baro_0") !== -1) {
     let index = displayed_sensors.indexOf("sensor_baro_0");
     let x = datums[index].pressure;
-    baro = `<tr><td>Mag:</td><td>(${fmt(x)})</td></tr>`;
+    baro = `<tr><td>Bar:</td><td>(${fmt(x)})</td></tr>`;
   }
   tooltip_div.style("opacity", .9);
   tooltip_div.html(`<table>${position}${acceleration}${rotation}${magnetometer}${baro}</table>`)
-    .style("left", (d3.event.pageX) + "px")
-    .style("top", (d3.event.pageY - 28) + "px");
+    .style("left", (point[0]) + "px")
+    .style("top", (point[1] - 28) + "px");
 } 
 
 
 
 
 
-function remove_hover_tooltip(g) {
+function remove_hover_tooltip() {
   tooltip_div.style("opacity", 0);
 }
 
@@ -130,7 +130,7 @@ function remove_hover_tooltip(g) {
 function remove_hover_circle(g) {
   g.selectAll("circle.hover")
     .remove();
-  remove_hover_tooltip(g)
+  remove_hover_tooltip();
 }
 
 
@@ -662,6 +662,33 @@ async function generate_path_line_chart(all_data, selection) {
       .attr("y2", d => scale.y.range()[1]);
   };
 
+  let update_hover_line = (timestamp) => {
+    g.selectAll("line.graph-hover-line")
+      .data([timestamp])
+      .join(
+        enter => enter.append("line")
+          .classed("graph-hover-line", true)
+          .attr("fill", "none")
+          .attr("stroke", "grey")
+          .attr("pointer-events", "none")
+          .attr("clip-path", `url(#${clip_path_id})`),
+        update => update,
+        exit => exit.remove()
+      )
+      .attr("x1", d => scale.x(d))
+      .attr("x2", d => scale.x(d))
+      .attr("y1", d => scale.y.range()[0])
+      .attr("y2", d => scale.y.range()[1]);
+
+    if (timestamp) {
+      update_hover_tooltip([d3.event.pageX, d3.event.pageY], timestamp, all_data, 
+        ["sensor_accel_0", "sensor_baro_0", "sensor_mag_0"]);
+    }
+    else {
+      remove_hover_tooltip();
+    }
+  }
+
   let zoom = d3.zoom()
     .scaleExtent([1, 32])
     .extent([[0, 0], [svg_size.width - padding.left - padding.right, 0]])
@@ -688,11 +715,19 @@ async function generate_path_line_chart(all_data, selection) {
     .attr("height", svg_size.height - padding.top - padding.bottom)
     .attr("fill", "none")
     .style("pointer-events", "fill")
-    .on("click", async () => {
+    .on("click", () => {
       let coords = d3.clientPoint(g.node(), d3.event);
       let clicked_date = scale.x.invert(coords[0]);
       selection.next_selected_datum(clicked_date);
     })
+    .on("mousemove", () => {
+      let coords = d3.clientPoint(g.node(), d3.event);
+      let hovered_date = scale.x.invert(coords[0]);
+      // We do this to snap to the closest date.
+      hovered_date = data[0][data[0].min_index((d) => Math.abs(d.timestamp - hovered_date))].timestamp;
+      update_hover_line(hovered_date);
+    })
+    .on("mouseleave", () => update_hover_line(undefined))
     .call(zoom)
     .call(zoom.transform, d3.zoomIdentity);
 
