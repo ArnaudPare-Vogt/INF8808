@@ -259,6 +259,9 @@ function generate_sensor_datagraph(all_data, sensor_list, axis) {
     g.append("g")
         .classed("axis", true)
         .classed("y", true)
+        .classed("red", axis=="x")
+        .classed("green", axis=="y")
+        .classed("blue", axis=="z")
         .attr("transform", "translate(0,0)")
         .call(axis_y);
 
