@@ -1,3 +1,5 @@
+// TODO: @Riad change this to contain less stuff (like define functions outside) 
+ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
 const CIRCLE_RADIUS = 45;
 let sensors = [{ "id": 0, "name": 'Accelerator', "sensor_id": "sensor_accel_0", "data_getter": d => d.mag },
 { "id": 1, "name": 'Estimated', "sensor_id": "vehicle_global_position_0", "data_getter": d => d.enu.u }, //TODO: Check
@@ -243,4 +245,5 @@ function generate_sensor_network(sensor_list, sensor_links) {
             .attr("dx", function (d) { return clamp(d.x - this.getComputedTextLength() / 2.0, CIRCLE_RADIUS / 2.0, width - CIRCLE_RADIUS / 2.0); })
             .attr("dy", function (d) { return clamp(d.y, CIRCLE_RADIUS / 2.0, height - CIRCLE_RADIUS / 2.0); });
     }
+}
 }
