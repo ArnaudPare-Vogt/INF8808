@@ -244,11 +244,11 @@ async function generate_2d_plot(all_data, plot_info, selection) {
 
 
 
-async function generate_3d_plot(all_data, selection) {
+async function generate_3d_plot(id, all_data, selection) {
   //TODO: Add resize when the window changes
   //TODO: Add zoom?
   //TODO: Center axis on (0,0,0)
-  let svg = d3.select("#path-view-3d")
+  let svg = d3.select(`#${id}`)
     .style("background-color", "#f7f7f7")
     .style("border", "black solid");
 
@@ -669,7 +669,7 @@ function generate_remote_controller(selection) {
 
 
 
-function create_zoom_buttons(all_data, selection) {
+function create_zoom_buttons(generators) {
   let svg = d3.selectAll(".four-views > svg");
 
   let zoom_button_size = [15, 15];
@@ -677,31 +677,34 @@ function create_zoom_buttons(all_data, selection) {
     top: 2,
     right: 2
   };
-  let g = svg.append("g")
-    .attr("transform", function() {
-      return `translate(${
-        this.parentNode.clientWidth - zoom_button_size[0] - zoom_button_padding.right
-      }, ${zoom_button_padding.top})`;
-    });
 
-  let rect = g.append("rect")
-    .classed("zoom-button", true)
-    .attr("width", zoom_button_size[0])
-    .attr("height", zoom_button_size[1])
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("rx", zoom_button_size[0]/4)
-    .attr("ry", zoom_button_size[1]/4);
-  let text = g.append("text")
-    .classed("unselectable", true)
-    .attr("x", zoom_button_size[0] / 2)
-    .attr("y", zoom_button_size[1] / 2)
-    .attr("dominant-baseline", "middle")
-    .attr("text-anchor", "middle")
-    .attr("stroke", "white")
-    .attr("user-select", "none")
-    .text("+");
-  
+  function create_zoom_buttons(svg, text) {
+    let g = svg.append("g")
+      .attr("transform", function() {
+        return `translate(${
+          this.parentNode.clientWidth - zoom_button_size[0] - zoom_button_padding.right
+        }, ${zoom_button_padding.top})`;
+      });
+
+    g.append("rect")
+      .classed("zoom-button", true)
+      .attr("width", zoom_button_size[0])
+      .attr("height", zoom_button_size[1])
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("rx", zoom_button_size[0]/4)
+      .attr("ry", zoom_button_size[1]/4);
+    g.append("text")
+      .classed("unselectable", true)
+      .attr("x", zoom_button_size[0] / 2)
+      .attr("y", zoom_button_size[1] / 2)
+      .attr("dominant-baseline", "middle")
+      .attr("text-anchor", "middle")
+      .attr("stroke", "white")
+      .attr("user-select", "none")
+      .text(text);
+    return g;
+  }
   function zoom_in() {
     d3.select("#small-graphs")
       .style("display", "none");
@@ -710,18 +713,23 @@ function create_zoom_buttons(all_data, selection) {
       .select("svg");
       
     svg.selectAll("*").remove();
-    generate_2d_plot(all_data, {
-      id: svg.attr("id"),
-      color: "lightgreen",
-      x: "lon",
-      y: "lat",
-      x_axis_class: "red",
-      y_axis_class: "blue"
-    }, selection);
+    
+    // we clicked on a child of g, the 2nd parent is the svg
+    let id = d3.select(d3.event.srcElement.parentNode.parentNode).attr("id");
+    generators[id]("zoomed-graph");
+
+    let unzoom_buttons = create_zoom_buttons(svg, "-");
+    unzoom_buttons.on("click", () => {
+      d3.select("#small-graphs")
+        .style("display", "grid");
+      let svg = d3.select("#big-graph")
+        .style("display", "none")
+        .select("svg");
+    });
   }
-  
-  rect.on("click", zoom_in);
-  text.on("click", zoom_in);
+
+  let zoom_buttons = create_zoom_buttons(svg, "+");
+  zoom_buttons.on("click", zoom_in);
 }
 
 
@@ -735,34 +743,40 @@ ON_TAB_FIRST_OPEN["path-tab"] = async () => {
   let selection = new Selection(all_data);
   
   // TODO: keep aspect ratio on graphs
-  generate_2d_plot(all_data, {
-    id: "path-view-top",
-    color: "lightgreen",
-    x: "lon",
-    y: "lat",
-    x_axis_class: "red",
-    y_axis_class: "blue"
-  }, selection);
-  generate_2d_plot(all_data, {
-    id: "path-view-front",
-    color: "rgb(214, 139, 214)",
-    x: "lon",
-    y: "alt",
-    x_axis_class: "red",
-    y_axis_class: "green"
-  }, selection);
-  generate_2d_plot(all_data, {
-    id: "path-view-left",
-    color: "pink",
-    x: "lat",
-    y: "alt",
-    x_axis_class: "blue",
-    y_axis_class: "green"
-  }, selection);
-  generate_3d_plot(all_data, selection);
+  let generators = {
+    "path-view-top": (id) => generate_2d_plot(all_data, {
+      id: id,
+      color: "lightgreen",
+      x: "lon",
+      y: "lat",
+      x_axis_class: "red",
+      y_axis_class: "blue"
+    }, selection),
+    "path-view-front": (id) => generate_2d_plot(all_data, {
+      id: id,
+      color: "rgb(214, 139, 214)",
+      x: "lon",
+      y: "alt",
+      x_axis_class: "red",
+      y_axis_class: "green"
+    }, selection),
+    "path-view-left": (id) => generate_2d_plot(all_data, {
+      id: id,
+      color: "pink",
+      x: "lat",
+      y: "alt",
+      x_axis_class: "blue",
+      y_axis_class: "green"
+    }, selection),
+    "path-view-3d": (id) => generate_3d_plot(id, all_data, selection),
+  };
+  for (let [id, generator] of Object.entries(generators)) {
+    generator(id);
+  }
+  
   setup_selected_point_info(selection);
   generate_path_line_chart(all_data, selection);
   generate_remote_controller(selection);
 
-  create_zoom_buttons(all_data, selection);
+  create_zoom_buttons(generators);
 }
