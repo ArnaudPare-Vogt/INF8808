@@ -258,3 +258,16 @@ svg .unselectable {
 #big-graph {
   display: none;
 }
+
+
+
+
+/* Sensor graph */
+.link {
+  opacity: 0.25;
+  stroke-width: 1;
+}
+.link.active {
+  opacity: 1;
+  stroke-width: 3;
+}

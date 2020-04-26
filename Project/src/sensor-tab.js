@@ -54,10 +54,16 @@ let sensorLinks = [
         'z_link': 'data_getter_z'
     },
     {
-        'source': 2, 'target': 5,
-        'x_link': null,
+        'source': 2, 'target': 3,
+        'x_link': 'data_getter_y',
         'y_link': 'data_getter_y',
-        'z_link': null
+        'z_link': 'data_getter_y'
+    },
+    {
+        'source': 2, 'target': 5,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_x',
+        'z_link': 'data_getter_x'
     }],
     [{ // Battery
         'source': 3, 'target': 4,
@@ -179,11 +185,8 @@ function update_selected_sensor(sensor_index) {
 
     flat
         .forEach(function (e, idx) {
-            if (linksToIgnore.has(idx)) {
-                svg.select(`#link_${idx}`).style('opacity', '1.0')
-            } else {
-                svg.select(`#link_${idx}`).style('opacity', '0.25')
-            }
+            svg.select(`#link_${idx}`)
+                .classed('active', linksToIgnore.has(idx));
         })
 
     //Update the XYZ graphics
@@ -317,6 +320,7 @@ function generate_sensor_network(sensor_list, sensor_links) {
         .enter()
         .append("line")
         .attr("id", (entry, idx) => `link_${idx}`)
+        .classed("link", true)
         .style("stroke", "#aaa")
 
     // Initialize the nodes
