@@ -247,6 +247,7 @@ const message_preprocessors = {
       parseFloat(row["q[2]"]),
       parseFloat(row["q[3]"])
     ]);
+    row.euler = row.q.toEuler();
     delete row["q[0]"];
     delete row["q[1]"];
     delete row["q[2]"];
