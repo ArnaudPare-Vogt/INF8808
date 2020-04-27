@@ -260,7 +260,8 @@ ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
             .attr("transform", "translate(0," + (svg_size.height - padding.bottom - padding.top) + ")")
             .call(axis_x, scale.x);
 
-        g.append("g")
+        let axis_text = { "x": "East", "y": "Up", "z": "North" }
+        let ya = g.append("g")
             .classed("axis", true)
             .classed("y", true)
             .classed("red", axis == "x")
@@ -269,6 +270,11 @@ ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
             .attr("transform", "translate(0,0)")
             .call(axis_y);
 
+        ya.append("text")
+            .classed("title", true)
+            .attr("x", 0)
+            .attr("y", -3)
+            .text(axis_text[axis]);
 
 
         let color_scale = d3.scaleOrdinal(d3.schemeCategory10)
