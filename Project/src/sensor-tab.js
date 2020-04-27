@@ -365,6 +365,7 @@ ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
             .attr("fill", "none")
             .style("pointer-events", "fill")
             .on("mousemove", () => {
+                if (selected_sensor_index == -1) return;
                 let coords = d3.clientPoint(g.node(), d3.event);
                 let hovered_date = scale.x.invert(coords[0]);
                 let selected_sensor = sensors[selected_sensor_index];
