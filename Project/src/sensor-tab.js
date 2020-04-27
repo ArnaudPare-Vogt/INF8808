@@ -20,7 +20,7 @@ let sensors = [
     { "id": 1, "name": 'Estimated', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
     { "id": 2, "name": 'GPS', "sensor_id": "vehicle_gps_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
     { "id": 3, "name": 'Battery', "sensor_id": "battery_status_0", "data_getter_x": d => d.voltage_v * d.current_a, "data_getter_y": null, "data_getter_z": d => 0 },
-    { "id": 4, "name": 'Wind', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.u, "data_getter_y": null, "data_getter_z": null }, //TODO: Check
+    { "id": 4, "name": 'Wind', "sensor_id": "wind_estimate_0", "data_getter_x": d => d.windspeed, "data_getter_y": null, "data_getter_z": null }, //TODO: Check
     { "id": 5, "name": 'Baro', "sensor_id": "sensor_baro_0", "data_getter_x": null, "data_getter_y": d => d.pressure, "data_getter_z": null },
     { "id": 6, "name": 'Gyro', "sensor_id": "sensor_gyro_0", "data_getter_x": d => d.x, "data_getter_y": d => d.y, "data_getter_z": d => d.z },
     { "id": 7, "name": 'Attitude', "sensor_id": "vehicle_attitude_0", "data_getter_x": d => d.euler[0], "data_getter_y": d => d.euler[1], "data_getter_z": d => d.euler[2] }
@@ -379,11 +379,13 @@ ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
     }
 
     function update_sensor_hover_tooltip(point, timestamp, all_data, axis) {
+        if(sensors[selected_sensor_index][`data_getter_${axis}`] == null) return
+        
         let others = sensorLinks[selected_sensor_index]
         let displayed_sensors = [sensors[selected_sensor_index]]
         displayed_sensors.push(others.map(d => d.target))
         displayed_sensors = displayed_sensors.flat();
-
+        
         let datums = displayed_sensors.map((message_name) => {
             // TODO: Optimize this shit
             let data = all_data[message_name.sensor_id];
@@ -401,7 +403,6 @@ ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
 
         // Round the numbers to 2 decimals
         let fmt = format.format(" ,.2f");
-
         let comps = `<tr><td style="text-align:left">${displayed_sensors[0].name}:</td>
         <td style="text-align:right">${fmt(displayed_sensors[0][`data_getter_${axis}`](datums[0]))}</td></tr>`;
 
