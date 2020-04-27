@@ -4,150 +4,149 @@ let sensorgraph_tooltip_div = d3.select("body").append("div")
     .attr("id", 'sensorgraph_tooltip')
     .style("opacity", 0);
 
+const CIRCLE_RADIUS = 55;
+/**
+*0 Accele(Norm [x]) -> { Battery(powerUsed[x]), Wind(intensity[x]) } 
+*1 Estimated(xyz) -> { GPS(xyz), Baro(y)}
+*2 GPS(xyz) -> { Estimated (xyz), Baro(y) }
+*3 Battery(powerUsed) ->  {Wind(intensity), Baro(y), GPS (alt[y])}
+*4 Wind(x) -> {Battery(x), Accele(x), Baro(y)}
+*5 Baro(y) -> { GPS(y), Estimated(y), Wind(intensity), Battery(powerUsed)}
+*6 Gyro(xyz) -> { Estimated_Attitude (xyz) }
+*7 Estimated_Attitude (xyz) -> { Gyro(xyz) }
+*/
+let sensors = [
+    { "id": 0, "name": 'Accelerometer', "sensor_id": "sensor_accel_0", "data_getter_x": d => d.mag, "data_getter_y": null, "data_getter_z": null },
+    { "id": 1, "name": 'Estimated', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
+    { "id": 2, "name": 'GPS', "sensor_id": "vehicle_gps_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
+    { "id": 3, "name": 'Battery', "sensor_id": "battery_status_0", "data_getter_x": d => d.voltage_v * d.current_a, "data_getter_y": null, "data_getter_z": d => 0 },
+    { "id": 4, "name": 'Wind', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.u, "data_getter_y": null, "data_getter_z": null }, //TODO: Check
+    { "id": 5, "name": 'Baro', "sensor_id": "sensor_baro_0", "data_getter_x": null, "data_getter_y": d => d.pressure, "data_getter_z": null },
+    { "id": 6, "name": 'Gyro', "sensor_id": "sensor_gyro_0", "data_getter_x": d => d.x, "data_getter_y": d => d.y, "data_getter_z": d => d.z },
+    { "id": 7, "name": 'Attitude', "sensor_id": "vehicle_attitude_0", "data_getter_x": d => d.euler[0], "data_getter_y": d => d.euler[1], "data_getter_z": d => d.euler[2] }
+]
+
+let sensorLinks = [
+    [{ // Accelerometer
+        'source': 0, 'target': 3,
+        'x_link': 'data_getter_x', // Means Accel(x) plots with Battery(x)
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 0, 'target': 4,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    }],
+    [{ // Estimated
+        'source': 1, 'target': 2,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    },
+    {
+        'source': 1, 'target': 5,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    }],
+    [{ // GPS
+        'source': 2, 'target': 1,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    },
+    {
+        'source': 2, 'target': 3,
+        'x_link': null,
+        'y_link': 'data_getter_x',
+        'z_link': null
+    },
+    {
+        'source': 2, 'target': 5, // Baro
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    }],
+    [{ // Battery
+        'source': 3, 'target': 4,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 3, 'target': 5,
+        'x_link': 'data_getter_y',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 3, 'target': 2,
+        'x_link': 'data_getter_y',
+        'y_link': null,
+        'z_link': null
+    }],
+    [{ // Wind(x)
+        'source': 4, 'target': 3,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 4, 'target': 0,
+        'x_link': 'data_getter_x',
+        'y_link': null,
+        'z_link': null
+    },
+    {
+        'source': 4, 'target': 5,
+        'x_link': 'data_getter_y',
+        'y_link': null,
+        'z_link': null
+    }],
+    [{ // Baro
+        'source': 5, 'target': 2,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    },
+    {
+        'source': 5, 'target': 1,
+        'x_link': null,
+        'y_link': 'data_getter_y',
+        'z_link': null
+    },
+    {
+        'source': 5, 'target': 4,
+        'x_link': null,
+        'y_link': 'data_getter_x', // Baro(y) with Wind(x)
+        'z_link': null
+    },
+    {
+        'source': 5, 'target': 3,
+        'x_link': null,
+        'y_link': 'data_getter_x', // Baro(y) with Battery(x)
+        'z_link': null
+    }],
+    [{ // Gyro
+        'source': 6, 'target': 7,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    }],
+    [{ // Attitude
+        'source': 7, 'target': 6,
+        'x_link': 'data_getter_x',
+        'y_link': 'data_getter_y',
+        'z_link': 'data_getter_z'
+    }]]
+
+// set the dimensions and margins of the graph
+let margin = { top: 0, right: 20, bottom: 0, left: 40 },
+    width = 600 - margin.left - margin.right,
+    height = 440 - margin.top - margin.bottom;
 ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
-    const CIRCLE_RADIUS = 55;
-    /**
-    *0 Accele(Norm [x]) -> { Battery(powerUsed[x]), Wind(intensity[x]) } 
-    *1 Estimated(xyz) -> { GPS(xyz), Baro(y)}
-    *2 GPS(xyz) -> { Estimated (xyz), Baro(y) }
-    *3 Battery(powerUsed) ->  {Wind(intensity), Baro(y), GPS (alt[y])}
-    *4 Wind(x) -> {Battery(x), Accele(x), Baro(y)}
-    *5 Baro(y) -> { GPS(y), Estimated(y), Wind(intensity), Battery(powerUsed)}
-    *6 Gyro(xyz) -> { Estimated_Attitude (xyz) }
-    *7 Estimated_Attitude (xyz) -> { Gyro(xyz) }
-    */
-    let sensors = [
-        { "id": 0, "name": 'Accelerometer', "sensor_id": "sensor_accel_0", "data_getter_x": d => d.mag, "data_getter_y": null, "data_getter_z": null },
-        { "id": 1, "name": 'Estimated', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
-        { "id": 2, "name": 'GPS', "sensor_id": "vehicle_gps_position_0", "data_getter_x": d => d.enu.e, "data_getter_y": d => d.enu.n, "data_getter_z": d => d.enu.u }, //TODO: Check getter
-        { "id": 3, "name": 'Battery', "sensor_id": "battery_status_0", "data_getter_x": d => d.voltage_v * d.current_a, "data_getter_y": null, "data_getter_z": d => 0 },
-        { "id": 4, "name": 'Wind', "sensor_id": "vehicle_global_position_0", "data_getter_x": d => d.enu.u, "data_getter_y": null, "data_getter_z": null }, //TODO: Check
-        { "id": 5, "name": 'Baro', "sensor_id": "sensor_baro_0", "data_getter_x": null, "data_getter_y": d => d.pressure, "data_getter_z": null },
-        { "id": 6, "name": 'Gyro', "sensor_id": "sensor_gyro_0", "data_getter_x": d => d.x, "data_getter_y": d => d.y, "data_getter_z": d => d.z },
-        { "id": 7, "name": 'Attitude', "sensor_id": "vehicle_attitude_0", "data_getter_x": d => d.euler[0], "data_getter_y": d => d.euler[1], "data_getter_z": d => d.euler[2] }
-    ]
-
-    let sensorLinks = [
-        [{ // Accelerometer
-            'source': 0, 'target': 3,
-            'x_link': 'data_getter_x', // Means Accel(x) plots with Battery(x)
-            'y_link': null,
-            'z_link': null
-        },
-        {
-            'source': 0, 'target': 4,
-            'x_link': 'data_getter_x',
-            'y_link': null,
-            'z_link': null
-        }],
-        [{ // Estimated
-            'source': 1, 'target': 2,
-            'x_link': 'data_getter_x',
-            'y_link': 'data_getter_y',
-            'z_link': 'data_getter_z'
-        },
-        {
-            'source': 1, 'target': 5,
-            'x_link': null,
-            'y_link': 'data_getter_y',
-            'z_link': null
-        }],
-        [{ // GPS
-            'source': 2, 'target': 1,
-            'x_link': 'data_getter_x',
-            'y_link': 'data_getter_y',
-            'z_link': 'data_getter_z'
-        },
-        {
-            'source': 2, 'target': 3,
-            'x_link': null,
-            'y_link': 'data_getter_x',
-            'z_link': null
-        },
-        {
-            'source': 2, 'target': 5, // Baro
-            'x_link': null,
-            'y_link': 'data_getter_y',
-            'z_link': null
-        }],
-        [{ // Battery
-            'source': 3, 'target': 4,
-            'x_link': 'data_getter_x',
-            'y_link': null,
-            'z_link': null
-        },
-        {
-            'source': 3, 'target': 5,
-            'x_link': 'data_getter_y',
-            'y_link': null,
-            'z_link': null
-        },
-        {
-            'source': 3, 'target': 2,
-            'x_link': 'data_getter_y',
-            'y_link': null,
-            'z_link': null
-        }],
-        [{ // Wind(x)
-            'source': 4, 'target': 3,
-            'x_link': 'data_getter_x',
-            'y_link': null,
-            'z_link': null
-        },
-        {
-            'source': 4, 'target': 0,
-            'x_link': 'data_getter_x',
-            'y_link': null,
-            'z_link': null
-        },
-        {
-            'source': 4, 'target': 5,
-            'x_link': 'data_getter_y',
-            'y_link': null,
-            'z_link': null
-        }],
-        [{ // Baro
-            'source': 5, 'target': 2,
-            'x_link': null,
-            'y_link': 'data_getter_y',
-            'z_link': null
-        },
-        {
-            'source': 5, 'target': 1,
-            'x_link': null,
-            'y_link': 'data_getter_y',
-            'z_link': null
-        },
-        {
-            'source': 5, 'target': 4,
-            'x_link': null,
-            'y_link': 'data_getter_x', // Baro(y) with Wind(x)
-            'z_link': null
-        },
-        {
-            'source': 5, 'target': 3,
-            'x_link': null,
-            'y_link': 'data_getter_x', // Baro(y) with Battery(x)
-            'z_link': null
-        }],
-        [{ // Gyro
-            'source': 6, 'target': 7,
-            'x_link': 'data_getter_x',
-            'y_link': 'data_getter_y',
-            'z_link': 'data_getter_z'
-        }],
-        [{ // Attitude
-            'source': 7, 'target': 6,
-            'x_link': 'data_getter_x',
-            'y_link': 'data_getter_y',
-            'z_link': 'data_getter_z'
-        }]]
-
-    // set the dimensions and margins of the graph
-    let margin = { top: 20, right: 20, bottom: 20, left: 40 },
-        width = 600 - margin.left - margin.right,
-        height = 600 - margin.top - margin.bottom;
-
     // append the svg object to the body of the page
     let svg = d3.select("#main-page-sensor")
         .append("svg")

@@ -147,6 +147,10 @@ div.tooltip {
   flex-direction: row;
 }
 
+#sensor-graphs{
+  width: 70%; 
+}
+
 
 
 
