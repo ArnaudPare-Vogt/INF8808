@@ -264,6 +264,12 @@ const message_preprocessors = {
     delete row["delta_q_reset[3]"];
     row.quat_reset_counter = parseInt(row.quat_reset_counter);
   },
+  "wind_estimate_0": (row, parse_timestamp) => {
+    // See https://github.com/PX4/Firmware/blob/master/msg/wind_estimate.msg
+    row.windspeed_north = parseFloat(row.windspeed_north);
+    row.windspeed_east = parseFloat(row.windspeed_east);
+    row.windspeed = Math.sqrt(Math.pow(row.windspeed_north, 2) + Math.pow(row.windspeed_north, 2));
+  },
 };
 
 
