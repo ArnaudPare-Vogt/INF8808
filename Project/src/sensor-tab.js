@@ -396,13 +396,13 @@ ON_TAB_FIRST_OPEN["sensor-tab"] = async () => {
         // Round the numbers to 2 decimals
         let fmt = format.format(" ,.2f");
 
-        let comps = `<tr><td style="text-align:left">${displayed_sensors[0].name}</td>
+        let comps = `<tr><td style="text-align:left">${displayed_sensors[0].name}:</td>
         <td style="text-align:right">${fmt(displayed_sensors[0][`data_getter_${axis}`](datums[0]))}</td></tr>`;
 
         displayed_links.forEach((link, idx) => {
             let target = link.target;
             let d = displayed_links[idx].target[data_getters[idx + 1]](datums[idx + 1])
-            comps += `<tr><td style="text-align:left">${target.name}</td><td style="text-align:right">${fmt(d)}</td></tr>`
+            comps += `<tr><td style="text-align:left">${target.name}:</td><td style="text-align:right">${fmt(d)}</td></tr>`
         })
 
         sensorgraph_tooltip_div.style("opacity", .9);
